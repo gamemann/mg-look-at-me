@@ -10,6 +10,10 @@ extends Node3D
 const LmGame := preload("lm_game.gd")
 const LmPlayer := preload("lm_player.gd")
 const LmLevel := preload("lm_level.gd")
+const LmNetBridge := preload("net/lm_net_bridge.gd")
+
+## Where dot-server's client publishes its link before the game scene loads.
+const LINK_SERVICE := &"dot_client_link"
 
 const CHANNEL := "lookatme.client"
 
@@ -38,19 +42,31 @@ var _command: LineEdit = null
 var _message_left := 0.0
 var _held_sampler: DotFpsSampler = null
 
+var net: DotNetManager = null
+var bridge: LmNetBridge = null
+var link: Node = null
+var _offline: bool = true
+## Connected, the keys are sampled here and sent; the local player is predicted from them.
+var _sampler: DotFpsSampler = null
+
 
 func _ready() -> void:
 	_build_environment()
+	link = DotRegistry.get_node_service(LINK_SERVICE)
+	_offline = link == null or OS.get_cmdline_user_args().has("--offline")
 	game = LmGame.new()
 	game.name = "World"
+	game.authoritative = _offline
+	game.register_service = _offline
+	game.self_tick = _offline
 	add_child(game)
-	player = game.join(local_key, local_name)
-	player.sampler = DotFpsSampler.new(player.controller.tunables)
-	DotFpsSampler.register_default_actions(player.sampler)
 
-	if start_level > 1 and game.levels.has(start_level):
-		player.best = start_level
-		game.send_to(player, start_level)
+	if _offline:
+		_adopt_player(game.join(local_key, local_name))
+
+		if start_level > 1 and game.levels.has(start_level):
+			player.best = start_level
+			game.send_to(player, start_level)
 
 	camera = Camera3D.new()
 	camera.name = "Camera"
@@ -61,8 +77,8 @@ func _ready() -> void:
 
 	flashlight = SpotLight3D.new()
 	flashlight.name = "Flashlight"
-	flashlight.spot_range = game.config.flashlight_range
-	flashlight.spot_angle = game.config.flashlight_angle
+	flashlight.spot_range = 18.0
+	flashlight.spot_angle = 32.0
 	flashlight.light_energy = 2.2
 	flashlight.light_color = Color(1.0, 0.95, 0.85)
 	flashlight.shadow_enabled = true
@@ -70,6 +86,11 @@ func _ready() -> void:
 	flashlight.position = Vector3(0.2, -0.15, 0.0)
 
 	_build_hud()
+
+	if not _offline:
+		DotLog.result(CHANNEL, "the netcode", _build_netcode())
+		return
+
 	game.said.connect(func(key: StringName, text: String) -> void:
 		if key == local_key:
 			_say(text))
@@ -78,6 +99,89 @@ func _ready() -> void:
 			_say("SHE SEES YOU", 2.0))
 
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if not DotPlatform.is_web() else Input.MOUSE_MODE_VISIBLE
+
+
+func _adopt_player(p: LmPlayer) -> void:
+	player = p
+
+	if _offline:
+		player.sampler = DotFpsSampler.new(player.controller.tunables)
+		DotFpsSampler.register_default_actions(player.sampler)
+	else:
+		_sampler = DotFpsSampler.new(player.controller.tunables)
+		DotFpsSampler.register_default_actions(_sampler)
+
+
+## The netcode, built inside `_ready` (inside the shell's scene load), as every game here does.
+func _build_netcode() -> DotResult:
+	net = DotNetManager.new()
+	net.name = "Net"
+	net.is_server = false
+	net.local_peer_id = multiplayer.get_unique_id() if multiplayer != null else 2
+	net.auto_tick = false
+	net.config_file = ""
+	var config := DotNetConfig.new()
+	config.tick_rate = Engine.physics_ticks_per_second
+	config.snapshot_rate = LmGame.NET_SNAPSHOT_RATE
+	config.world_extent = LmGame.NET_WORLD_EXTENT
+	config.enable_prediction = true
+	config.enable_lag_compensation = false
+	config.max_entities_per_snapshot = 64
+	net.config = config
+	add_child(net)
+	var started := net.setup()
+
+	if not started.ok:
+		return started
+
+	bridge = LmNetBridge.new()
+	bridge.name = "Bridge"
+	add_child(bridge)
+	var attached := bridge.attach(game, net)
+
+	if not attached.ok:
+		return attached
+
+	bridge.open_link(link)
+	net.messages.seal()
+	game.player_joined.connect(func(key: StringName) -> void:
+		if key == bridge.local_key:
+			_adopt_player(game.players[key]))
+	bridge.said.connect(func(text: String) -> void: _say(text))
+	bridge.notice_received.connect(func(text: String) -> void: _say(text))
+
+	if link.has_method("ping_ms"):
+		bridge.rtt_source = func() -> float: return float(maxi(0, int(link.call("ping_ms"))))
+
+	if link.has_method("is_playing") and bool(link.call("is_playing")):
+		bridge.ask_ready()
+	elif link.has_signal("spawned"):
+		link.connect("spawned", func() -> void: bridge.ask_ready(), CONNECT_ONE_SHOT)
+
+	return net.start()
+
+
+func _physics_process(delta: float) -> void:
+	if _offline or net == null or not net.is_running() or bridge == null:
+		return
+
+	if link != null and link.has_method("is_playing") and not bool(link.call("is_playing")):
+		return
+
+	var move := _sampler.sample(delta) if _sampler != null and not _command.visible else DotFpsCommand.new()
+
+	if command_override != null:
+		move = command_override
+
+	var ticks := net.clock.advance(delta)
+
+	for i in range(ticks):
+		if net.clock.is_synced():
+			bridge.client_tick(net.clock.input_tick() - (ticks - 1 - i), move)
+
+
+## A command to walk with instead of the keys: what a headless client in a suite has.
+var command_override: DotFpsCommand = null
 
 
 func _build_environment() -> void:
@@ -227,6 +331,21 @@ func _on_command(text: String) -> void:
 
 
 func _act(action: String, args: Dictionary = {}) -> void:
+	if player == null:
+		return
+
+	if not _offline:
+		var body := args.duplicate()
+
+		if action == "flashlight":
+			body["on"] = not player.flashlight
+			# Shown at once: the light is the player's own, and waiting a round trip for it
+			# to come on is a switch that feels broken.
+			player.flashlight = not player.flashlight
+
+		bridge.ask_act(action, body)
+		return
+
 	match action:
 		"use":
 			var _said := game.interact(local_key)
@@ -240,6 +359,9 @@ func _act(action: String, args: Dictionary = {}) -> void:
 # --- Every frame -------------------------------------------------------------
 
 func _process(delta: float) -> void:
+	if net != null and net.is_running():
+		net.interpolate_frame(-1.0)
+
 	if player == null:
 		return
 
@@ -249,12 +371,19 @@ func _process(delta: float) -> void:
 
 	for key: StringName in game.players:
 		var other: LmPlayer = game.players[key]
+		# Only the people in the same house: the others are on another level, out of sight.
+		other.visible = other.level == player.level
 		other.present_body(other == player and not third_person)
 
 	var level := game.level_of(player)
+
+	if level == null:
+		_step.text = "Joining…"
+		return
+
 	_step.text = "Level %d of %d — %s" % [player.level, game.last_level(), game.step_of(player)]
 	_holds.text = "Holding: %s" % (", ".join(_hold_names(level)) if not player.holds.is_empty() else "nothing")
-	var target := game.target_of(local_key)
+	var target := game.target_of(player.player_key)
 	_prompt.text = ("[E] %s" % target["text"]) if not target.is_empty() else ""
 	_meter_bar.value = player.meter
 	_meter_bar.visible = player.meter > 0.01

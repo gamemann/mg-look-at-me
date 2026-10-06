@@ -27,6 +27,12 @@ const LEVEL_GAP := 60.0
 const LAYER_WORLD := 1
 const LAYER_PLAYERS := 2
 
+## The netcode's numbers, read by the module and the client from here, so both ends agree.
+const NET_SNAPSHOT_RATE := 30
+
+## Metres from the origin a position may be: 32 levels side by side reach a long way.
+const NET_WORLD_EXTENT := 8192.0
+
 signal said(key: StringName, text: String)
 signal took(key: StringName, item_id: String)
 signal opened_door(key: StringName, door_id: String)

@@ -44,6 +44,9 @@ var caught_left: float = 0.0
 
 var tick_rate: int = 60
 
+## Teleports so far: replicated, so a mirror knows a jump is not a slide.
+var warps: int = 0
+
 
 func _ready() -> void:
 	collision_layer = 2
@@ -82,6 +85,7 @@ static func tunables_for(config: LmConfig) -> DotFpsTunables:
 
 
 func simulate(tick: int, delta: float) -> void:
+	# Offline the keys; on a server, whatever the bridge last applied from this player's input.
 	if sampler != null:
 		controller.apply_command(sampler.sample(delta))
 
@@ -108,6 +112,7 @@ func horizontal_speed() -> float:
 
 
 func place_at(at: Vector3, yaw_degrees: float) -> void:
+	warps += 1
 	global_position = at
 	controller.teleport(at, yaw_degrees, 0.0)
 
