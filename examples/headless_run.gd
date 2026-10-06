@@ -8,9 +8,10 @@ extends Node
 const LmGame := preload("res://game/lm_game.gd")
 const LmLevel := preload("res://game/lm_level.gd")
 const LmPlayer := preload("res://game/lm_player.gd")
+const LmProgress := preload("res://game/lm_progress.gd")
 
 const SECTIONS := 8
-const CHECKS := 27
+const CHECKS := 29
 
 var _passed := 0
 var _failed := 0
@@ -18,6 +19,7 @@ var _failures := PackedStringArray()
 var _entered := 0
 var _finished := 0
 var game: LmGame = null
+var _earned: Array = []
 
 
 func _ready() -> void:
@@ -29,6 +31,10 @@ func _ready() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(game.config.winners_file))
 	add_child(game)
 	await get_tree().physics_frame
+	var progress := LmProgress.new()
+	add_child(progress)
+	var _p := progress.setup(game, "", false)
+	progress.earned.connect(func(key: StringName, title: String, _points: int) -> void: _earned.append([String(key), title]))
 
 	_test_levels()
 	_test_every_level_finishes()
@@ -271,6 +277,9 @@ func _test_winning() -> void:
 	game.step(1.0 / 60.0)
 	_check(winner[0] and p.won and p.level == 1, "out of the last one is a win, and back to the lobby")
 	_check(FileAccess.file_exists(game.config.winners_file) and game.winners.has("a"), "kept, so it outlives the server")
+	await get_tree().process_frame
+	_check(_earned.has(["a", "Through the Front Door"]), "getting through level 1 is an achievement", str(_earned))
+	_check(_earned.has(["a", "Out"]), "and getting out of the house is the brief's", str(_earned))
 	p.present_body(false)
 	_check(p.get_node_or_null("Crown") != null and (p.get_node("Crown") as Node3D).visible, "with a crown everybody else sees")
 	_finished_section()

@@ -11,6 +11,10 @@ extends DotGameModule
 const LmNetBridge := preload("net/lm_net_bridge.gd")
 const LmServices := preload("lm_services.gd")
 const LmGame := preload("lm_game.gd")
+const LmProgress := preload("lm_progress.gd")
+
+## Players' numbers and achievements, or null when the server keeps none.
+var progress: LmProgress = null
 
 
 func _module_name() -> String:
@@ -67,6 +71,22 @@ func _game_load() -> DotResult:
 
 	if bridge != null:
 		bridge.connect("say_requested", _on_say_requested)
+
+	progress = LmProgress.new()
+	progress.name = "Progress"
+	add_child(progress)
+	var made := progress.setup(world, "user://lookatme_achievements", true)
+
+	if not made.ok:
+		DotLog.result(CHANNEL, "progress is off", made)
+		progress.queue_free()
+		progress = null
+	else:
+		progress.earned.connect(func(key: StringName, title: String, points: int) -> void:
+			var peer: int = bridge.call("peer_of", key) if bridge != null else 0
+
+			if peer > 0:
+				bridge.call("notice", peer, "Achievement: %s (+%d)" % [title, points]))
 
 	if not world.levels.is_empty():
 		var _reported := report_map(str((world.levels[1] as Node).get("doc").get("id", "lm_01")))

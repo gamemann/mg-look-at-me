@@ -12,6 +12,7 @@ const LmPlayer := preload("lm_player.gd")
 const LmLevel := preload("lm_level.gd")
 const LmNetBridge := preload("net/lm_net_bridge.gd")
 const LmClientChat := preload("lm_client_chat.gd")
+const LmSounds := preload("lm_sounds.gd")
 
 ## Where dot-server's client publishes its link before the game scene loads.
 const LINK_SERVICE := &"dot_client_link"
@@ -50,6 +51,7 @@ var _offline: bool = true
 ## Connected, the keys are sampled here and sent; the local player is predicted from them.
 var _sampler: DotFpsSampler = null
 var chat: LmClientChat = null
+var sounds: LmSounds = null
 
 
 func _ready() -> void:
@@ -88,6 +90,9 @@ func _ready() -> void:
 	flashlight.position = Vector3(0.2, -0.15, 0.0)
 
 	_build_hud()
+	sounds = LmSounds.new()
+	sounds.name = "Sounds"
+	add_child(sounds)
 	chat = LmClientChat.new()
 	chat.name = "Chat"
 	add_child(chat)
@@ -360,7 +365,8 @@ func _act(action: String, args: Dictionary = {}) -> void:
 
 	match action:
 		"use":
-			var _said := game.interact(local_key)
+			if game.interact(local_key) != "":
+				sounds.click()
 		"flashlight":
 			game.set_flashlight(local_key, not player.flashlight)
 		"command":
@@ -401,6 +407,7 @@ func _process(delta: float) -> void:
 	var target := game.target_of(player.player_key)
 	_prompt.text = ("[E] %s" % target["text"]) if not target.is_empty() else ""
 	_meter_bar.value = player.meter
+	sounds.meter = player.meter
 	_meter_bar.visible = player.meter > 0.01
 	(_vignette.material as ShaderMaterial).set_shader_parameter("amount", player.meter * 0.85 if player.caught_left <= 0.0 else 1.0)
 
@@ -460,6 +467,7 @@ func _draw_witches() -> void:
 
 			if view == null:
 				view = _witch_view(float(level.witches[i]["sight"]) * game.config.witch_sight_scale, float(level.witches[i]["cone"]) * game.config.witch_cone_scale)
+				view.add_child(LmSounds.drone())
 				add_child(view)
 				_witch_views[key] = view
 

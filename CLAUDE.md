@@ -19,12 +19,14 @@ game/
   lm_module.gd   the DotGameModule: predicted netcode, progress keyed by account uid, lm_status / lm_send / lm_winners, /commands in chat
   lm_services.gd chat (all, admin, whisper) and voice for everybody across the house
   lm_server.gd   what scenes/lm_server.tscn runs: the house, drawing nothing
+  lm_progress.gd dot-stats (levels, deepest, catches, wins) and four achievements, "Out" the brief's; reported to the backbone
+  lm_sounds.gd   synthesised: a heartbeat that races with the meter, a drone on every witch, a click
   net/           lm_events (JSON kinds), lm_event/lm_request, lm_net_link, lm_net_command (the move), lm_player_net (movement + level/flashlight/won, meter/caught to the owner), lm_net_bridge
   lm_figure.gd, lm_avatars.gd, lm_paths.gd   mg-deathrun's, renamed (Kenney blocky characters, the avatar schema, mount paths)
 levels/          lm_01 .. lm_32, written by tools/build_levels.py
 scenes/          lm_server.tscn
-examples/        headless_run (8 sections, 27 checks), headless_net (6, 19), dedicated (6, 14)
-tools/           build_levels.py; shot.sh/.gd (render: eyes, third, witch, above); probe.gd (a quick look)
+examples/        headless_run (8 sections, 29 checks), headless_net (6, 19), dedicated (6, 14)
+tools/           build_levels.py; shot.sh/.gd (render: eyes, third, witch, above); audio_probe (xvfb only: is there a sound); probe.gd
 ```
 
 ## Decision 1: doors are per player, and that is an exclusion list
@@ -51,6 +53,7 @@ Movement is mg-deathrun's: an `LmNetCommand` a tick into dot-net's input buffer,
 
 - **dot-player-controller needs dot_player and dot_net linked**; without them `DotFpsController` does not parse and every script that names it fails with it.
 - **Level 1 had no witch**: its rooms each hang off the lobby, so there was no loop that avoided a start room. A witch with nowhere to go walks the corners of one room.
+- **Sound is only provable under xvfb** (`tools/audio_probe`: ALSA, the heartbeat playing at a 0.9 meter, a drone on each witch); `--headless` has the Dummy driver and plays nothing.
 - **The lobby was as dark as the house** with one lamp in the middle of a 24 m room. Lit rooms get a lamp every cell and a half.
 
 ## Validating
@@ -59,7 +62,7 @@ Movement is mg-deathrun's: an `LmNetCommand` a tick into dot-net's input buffer,
 godot --headless --path . --import
 find . -name '*.gd' -not -path './.godot/*' -not -path './addons/*' | while read f; do
     godot --headless --path . --check-only --script "res://${f#./}"; done
-godot --headless --path . res://examples/headless_run.tscn   # 8 sections, 27 checks
+godot --headless --path . res://examples/headless_run.tscn   # 8 sections, 29 checks
 godot --headless --path . res://examples/headless_net.tscn   # 6 sections, 19 checks: predicted, through a door open for one
 godot --headless --path . res://examples/dedicated.tscn      # 6 sections, 14 checks
 tools/build_levels.py --check
@@ -72,7 +75,6 @@ In the order they are worth doing.
 
 1. **A browser look**, then publishing: the pack is `tmc/lookatme` (dot-server-deploy `content/lookatme/`), and the release order is the family's.
 2. **dot-map and dot-vote**: the brief asks that the house be a map an owner can replace and vote on. A map is a directory of level documents; dot-vote's list source over the directories, as mg-deathrun's course vote does over courses.
-3. **TMC avatars** through dot-platform (the figure and the avatar schema are mg-deathrun's and already translate the site's), and an achievement for winning through dot-achievements (the crown and the winners file are here).
-4. **Sound**: footsteps, her breathing as she nears, the meter's heartbeat. The meter is the whole game and it is silent.
-5. **Kenney furniture** (the Furniture Kit) in rooms, for something to hide behind; today a room is four walls and a stand.
-6. **The GitHub repository** is the owner's to create.
+3. **TMC avatars** through dot-platform (the figure and the avatar schema are mg-deathrun's and already translate the site's).
+4. **Kenney furniture** (the Furniture Kit) in rooms, for something to hide behind; today a room is four walls and a stand.
+5. **The GitHub repository** is the owner's to create.
