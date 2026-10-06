@@ -19,13 +19,15 @@ game/
   lm_module.gd   the DotGameModule: predicted netcode, progress keyed by account uid, lm_status / lm_send / lm_winners, /commands in chat
   lm_services.gd chat (all, admin, whisper) and voice for everybody across the house
   lm_server.gd   what scenes/lm_server.tscn runs: the house, drawing nothing
+  lm_vote.gd     the house vote over dot-vote: a time limit, rock the vote, applied at once
   lm_progress.gd dot-stats (levels, deepest, catches, wins) and four achievements, "Out" the brief's; reported to the backbone
   lm_sounds.gd   synthesised: a heartbeat that races with the meter, a drone on every witch, a click
   net/           lm_events (JSON kinds), lm_event/lm_request, lm_net_link, lm_net_command (the move), lm_player_net (movement + level/flashlight/won, meter/caught to the owner), lm_net_bridge
   lm_figure.gd, lm_avatars.gd, lm_paths.gd   mg-deathrun's, renamed (Kenney blocky characters, the avatar schema, mount paths)
-levels/          lm_01 .. lm_32, written by tools/build_levels.py
+levels/          The House: lm_01 .. lm_32 and house.json, written by tools/build_levels.py
+houses/asylum/   The Asylum: asylum_01 .. asylum_16, the same builder
 scenes/          lm_server.tscn
-examples/        headless_run (8 sections, 30 checks), headless_net (6, 19), dedicated (6, 14)
+examples/        headless_run (9 sections, 35 checks), headless_net (6, 20), dedicated (6, 16)
 tools/           build_levels.py; shot.sh/.gd (render: eyes, third, witch, above); audio_probe (xvfb only: is there a sound); probe.gd
 ```
 
@@ -51,6 +53,10 @@ Movement is mg-deathrun's: an `LmNetCommand` a tick into dot-net's input buffer,
 
 **Furniture** (Kenney's Furniture Kit, 21 models, ×2.3) lines the walls, themed by room name (`LmLevel.FURNITURE`, `ROOM_THEMES`), placed from `LmHash.unit` of level, room, wall and slot so every machine furnishes alike, never within 1.9 m of a door and never deeper than 1.4 m (items are always further in than that, so nothing a level needs is ever behind a sofa). Every piece is a solid StaticBody3D on the world layer, built on a server too: it blocks movement and a witch's sight like a wall, which is what makes it something to hide behind.
 
+## Decision 6: a house is a map, and the players vote between them
+
+The brief: the base game is a map an owner can replace, with a time limit, through dot-map and dot-vote. A **house** is a directory of level documents with a `house.json` ({kind, id, name}); the built-in one is `levels/` ("The House", 32 levels), `houses/<id>/` holds the others (the Asylum, 16, written by the same builder with its own seed and names), and an owner's own goes in `houses/` or `user://lookatme_houses/`. `LmGame.change_house` replaces every level and puts everybody in the new lobby with their reach reset; the bridge sends each client the house again (HELLO, then one LEVEL each), and the client drops the old house's witches. `LmVote` (mg-deathrun's course vote, re-aimed) puts every house on a dot-vote ballot when `house_minutes` (45) is nearly up, the current one and an extension included, applied at once since there are no rounds; `!rtv` any time; 0 minutes is rock-the-vote only. `lm_house <id>` for an operator. dot-server-deploy's `lookatme_client` checks the delivered server found the Asylum inside its mount.
+
 ## What running and rendering found
 
 - **dot-player-controller needs dot_player and dot_net linked**; without them `DotFpsController` does not parse and every script that names it fails with it.
@@ -64,9 +70,9 @@ Movement is mg-deathrun's: an `LmNetCommand` a tick into dot-net's input buffer,
 godot --headless --path . --import
 find . -name '*.gd' -not -path './.godot/*' -not -path './addons/*' | while read f; do
     godot --headless --path . --check-only --script "res://${f#./}"; done
-godot --headless --path . res://examples/headless_run.tscn   # 8 sections, 30 checks
-godot --headless --path . res://examples/headless_net.tscn   # 6 sections, 19 checks: predicted, through a door open for one
-godot --headless --path . res://examples/dedicated.tscn      # 6 sections, 14 checks
+godot --headless --path . res://examples/headless_run.tscn   # 9 sections, 35 checks
+godot --headless --path . res://examples/headless_net.tscn   # 6 sections, 20 checks: predicted, through a door open for one
+godot --headless --path . res://examples/dedicated.tscn      # 6 sections, 16 checks
 tools/build_levels.py --check
 tools/shot.sh; tools/shot.sh --view=witch --level=8; tools/shot.sh --view=third
 ```
@@ -76,6 +82,6 @@ tools/shot.sh; tools/shot.sh --view=witch --level=8; tools/shot.sh --view=third
 In the order they are worth doing.
 
 1. **A browser look**, then publishing: the pack is `tmc/lookatme` (dot-server-deploy `content/lookatme/`), and the release order is the family's.
-2. **dot-map and dot-vote**: the brief asks that the house be a map an owner can replace and vote on. A map is a directory of level documents; dot-vote's list source over the directories, as mg-deathrun's course vote does over courses.
+2. **Winners per house.** One winners file for every house: getting out of the Asylum gives the same crown as the House.
 3. **TMC avatars** through dot-platform (the figure and the avatar schema are mg-deathrun's and already translate the site's).
 4. **The GitHub repository** is the owner's to create.

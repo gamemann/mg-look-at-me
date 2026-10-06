@@ -1,0 +1,588 @@
+{
+	"format": 1,
+	"kind": "level",
+	"id": "asylum_14",
+	"number": 14,
+	"name": "The Director's Office",
+	"author": "mg-look-at-me",
+	"blurb": "Level 14 of 16.",
+	"cell": 8.0,
+	"height": 3.2,
+	"rooms": [
+		{
+			"id": "r0",
+			"name": "Landing",
+			"x": 0,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": true,
+			"light": 0.45
+		},
+		{
+			"id": "r1",
+			"name": "Boiler Room",
+			"x": 1,
+			"z": -2,
+			"w": 1,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r2",
+			"name": "Parlour",
+			"x": 2,
+			"z": -1,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r3",
+			"name": "Workshop",
+			"x": 2,
+			"z": 0,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r4",
+			"name": "Chapel",
+			"x": -1,
+			"z": -1,
+			"w": 1,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r5",
+			"name": "Larder",
+			"x": 4,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r6",
+			"name": "Pantry",
+			"x": -3,
+			"z": -2,
+			"w": 2,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r7",
+			"name": "Storeroom",
+			"x": 3,
+			"z": 0,
+			"w": 2,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r8",
+			"name": "Laundry",
+			"x": -4,
+			"z": -2,
+			"w": 1,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r9",
+			"name": "Bathroom",
+			"x": 5,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r10",
+			"name": "Study",
+			"x": 5,
+			"z": 1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		}
+	],
+	"doors": [
+		{
+			"id": "d0",
+			"a": "r0",
+			"b": "r1",
+			"lock": "note_0",
+			"label": "Keypad door",
+			"colour": "steel"
+		},
+		{
+			"id": "d1",
+			"a": "r1",
+			"b": "r2",
+			"lock": "@fusebox_1",
+			"label": "Electric gate",
+			"colour": "steel"
+		},
+		{
+			"id": "d2",
+			"a": "r0",
+			"b": "r3",
+			"lock": "@fusebox_2",
+			"label": "Electric gate",
+			"colour": "steel"
+		},
+		{
+			"id": "d3",
+			"a": "r0",
+			"b": "r4",
+			"lock": "key_orange_3",
+			"label": "Orange door",
+			"colour": "orange"
+		},
+		{
+			"id": "d4",
+			"a": "r2",
+			"b": "r5",
+			"lock": "",
+			"label": "Door",
+			"colour": "brown"
+		},
+		{
+			"id": "d5",
+			"a": "r4",
+			"b": "r6",
+			"lock": "key_white_5",
+			"label": "White door",
+			"colour": "white"
+		},
+		{
+			"id": "d6",
+			"a": "r5",
+			"b": "r7",
+			"lock": "key_black_6",
+			"label": "Black door",
+			"colour": "black"
+		},
+		{
+			"id": "d7",
+			"a": "r6",
+			"b": "r8",
+			"lock": "",
+			"label": "Door",
+			"colour": "brown"
+		},
+		{
+			"id": "d8",
+			"a": "r5",
+			"b": "r9",
+			"lock": "key_green_8",
+			"label": "Green door",
+			"colour": "green"
+		},
+		{
+			"id": "d9",
+			"a": "r7",
+			"b": "r10",
+			"lock": "note_9",
+			"label": "Keypad door",
+			"colour": "steel"
+		},
+		{
+			"id": "exit",
+			"a": "r10",
+			"b": "",
+			"side": "n",
+			"lock": "key_gold",
+			"label": "The way out",
+			"colour": "gold",
+			"exit": true
+		}
+	],
+	"items": [
+		{
+			"id": "note_0",
+			"name": "Note: 6453",
+			"kind": "note",
+			"room": "r0",
+			"at": [
+				0.33,
+				0.29
+			]
+		},
+		{
+			"id": "fuse_1",
+			"name": "Fuse",
+			"kind": "fuse",
+			"room": "r0",
+			"at": [
+				0.49,
+				0.41
+			]
+		},
+		{
+			"id": "fuse_2",
+			"name": "Fuse",
+			"kind": "fuse",
+			"room": "r0",
+			"at": [
+				0.36,
+				0.31
+			]
+		},
+		{
+			"id": "key_orange_3",
+			"name": "Orange key",
+			"kind": "key",
+			"room": "r1",
+			"at": [
+				0.38,
+				0.41
+			],
+			"colour": "orange"
+		},
+		{
+			"id": "key_white_5",
+			"name": "White key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.63,
+				0.35
+			],
+			"colour": "white"
+		},
+		{
+			"id": "key_black_6",
+			"name": "Black key",
+			"kind": "key",
+			"room": "r3",
+			"at": [
+				0.47,
+				0.48
+			],
+			"colour": "black"
+		},
+		{
+			"id": "key_green_8",
+			"name": "Green key",
+			"kind": "key",
+			"room": "r6",
+			"at": [
+				0.66,
+				0.27
+			],
+			"colour": "green"
+		},
+		{
+			"id": "note_9",
+			"name": "Note: 2615",
+			"kind": "note",
+			"room": "r2",
+			"at": [
+				0.49,
+				0.54
+			]
+		},
+		{
+			"id": "key_gold",
+			"name": "Gold key",
+			"kind": "key",
+			"room": "r2",
+			"at": [
+				0.63,
+				0.41
+			],
+			"colour": "gold"
+		}
+	],
+	"stations": [
+		{
+			"id": "fusebox_1",
+			"name": "Fuse box",
+			"kind": "fusebox",
+			"room": "r0",
+			"at": [
+				0.67,
+				0.72
+			],
+			"needs": "fuse_1",
+			"gives": "",
+			"opens": "d1",
+			"consumes": true,
+			"verb": "Fit the fuse"
+		},
+		{
+			"id": "fusebox_2",
+			"name": "Fuse box",
+			"kind": "fusebox",
+			"room": "r0",
+			"at": [
+				0.43,
+				0.24
+			],
+			"needs": "fuse_2",
+			"gives": "",
+			"opens": "d2",
+			"consumes": true,
+			"verb": "Fit the fuse"
+		}
+	],
+	"steps": [
+		{
+			"text": "Find the keypad's code",
+			"when": {
+				"holds": "note_0"
+			}
+		},
+		{
+			"text": "Enter the code at the keypad door",
+			"when": {
+				"opened": "d0"
+			}
+		},
+		{
+			"text": "Find a fuse",
+			"when": {
+				"holds": "fuse_1"
+			}
+		},
+		{
+			"text": "Fit it in the fuse box",
+			"when": {
+				"used": "fusebox_1"
+			}
+		},
+		{
+			"text": "Find a fuse",
+			"when": {
+				"holds": "fuse_2"
+			}
+		},
+		{
+			"text": "Fit it in the fuse box",
+			"when": {
+				"used": "fusebox_2"
+			}
+		},
+		{
+			"text": "Find the orange key",
+			"when": {
+				"holds": "key_orange_3"
+			}
+		},
+		{
+			"text": "Open the orange door",
+			"when": {
+				"opened": "d3"
+			}
+		},
+		{
+			"text": "Find the white key",
+			"when": {
+				"holds": "key_white_5"
+			}
+		},
+		{
+			"text": "Open the white door",
+			"when": {
+				"opened": "d5"
+			}
+		},
+		{
+			"text": "Find the black key",
+			"when": {
+				"holds": "key_black_6"
+			}
+		},
+		{
+			"text": "Open the black door",
+			"when": {
+				"opened": "d6"
+			}
+		},
+		{
+			"text": "Find the green key",
+			"when": {
+				"holds": "key_green_8"
+			}
+		},
+		{
+			"text": "Open the green door",
+			"when": {
+				"opened": "d8"
+			}
+		},
+		{
+			"text": "Find the keypad's code",
+			"when": {
+				"holds": "note_9"
+			}
+		},
+		{
+			"text": "Enter the code at the keypad door",
+			"when": {
+				"opened": "d9"
+			}
+		},
+		{
+			"text": "Find the gold key",
+			"when": {
+				"holds": "key_gold"
+			}
+		},
+		{
+			"text": "Get out",
+			"when": {
+				"opened": "exit"
+			}
+		}
+	],
+	"witches": [
+		{
+			"path": [
+				[
+					"room",
+					"r4"
+				],
+				[
+					"door",
+					"d5"
+				],
+				[
+					"room",
+					"r6"
+				],
+				[
+					"door",
+					"d7"
+				],
+				[
+					"room",
+					"r8"
+				],
+				[
+					"door",
+					"d7"
+				],
+				[
+					"room",
+					"r6"
+				],
+				[
+					"door",
+					"d5"
+				]
+			],
+			"speed": 2.2,
+			"sight": 12.9,
+			"cone": 86.8
+		},
+		{
+			"path": [
+				[
+					"room",
+					"r4"
+				],
+				[
+					"door",
+					"d5"
+				],
+				[
+					"room",
+					"r6"
+				],
+				[
+					"door",
+					"d7"
+				],
+				[
+					"room",
+					"r8"
+				],
+				[
+					"door",
+					"d7"
+				],
+				[
+					"room",
+					"r6"
+				],
+				[
+					"door",
+					"d5"
+				]
+			],
+			"speed": 2.3,
+			"sight": 12.9,
+			"cone": 86.8
+		},
+		{
+			"path": [
+				[
+					"at",
+					"r3",
+					0.2,
+					0.2
+				],
+				[
+					"at",
+					"r3",
+					0.8,
+					0.2
+				],
+				[
+					"at",
+					"r3",
+					0.8,
+					0.8
+				],
+				[
+					"at",
+					"r3",
+					0.2,
+					0.8
+				]
+			],
+			"speed": 2.4,
+			"sight": 12.9,
+			"cone": 86.8
+		},
+		{
+			"path": [
+				[
+					"room",
+					"r6"
+				],
+				[
+					"door",
+					"d5"
+				],
+				[
+					"room",
+					"r4"
+				],
+				[
+					"door",
+					"d5"
+				]
+			],
+			"speed": 2.5,
+			"sight": 12.9,
+			"cone": 86.8
+		}
+	]
+}

@@ -8,7 +8,7 @@ extends Node
 const LmGame := preload("../game/lm_game.gd")
 
 const SECTIONS := 6
-const CHECKS := 14
+const CHECKS := 16
 
 const SERVER_DIR := "user://lm_dedicated"
 const PORT := 28951
@@ -154,6 +154,10 @@ func _test_the_console() -> void:
 	_check(_said(_run_command("lm_status"), "levels"), "lm_status describes the house")
 	_check(_said(_run_command("lm_winners"), "winners (0)"), "lm_winners lists nobody yet")
 	_check(_said(_run_command("lm_send nobody 3"), "Nobody called"), "lm_send refuses somebody who is not here")
+	_check(_module().get("vote") != null and _said(_run_command("lm_house"), "asylum"), "the house vote is built, and lm_house lists the houses")
+	var _a := _run_command("lm_house asylum")
+	_check(game.house_id == &"asylum" and game.levels.size() == 16, "lm_house asylum opens it")
+	var _h := _run_command("lm_house house")
 	_finished_section()
 
 

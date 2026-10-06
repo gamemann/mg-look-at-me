@@ -67,6 +67,9 @@ func _ready() -> void:
 
 	if _offline:
 		_adopt_player(game.join(local_key, local_name))
+		game.house_changed.connect(func(_id: StringName) -> void:
+			_forget_witches()
+			_say(game.house_name().to_upper(), 3.0))
 
 		if start_level > 1 and game.levels.has(start_level):
 			player.best = start_level
@@ -160,6 +163,10 @@ func _build_netcode() -> DotResult:
 	game.player_joined.connect(func(key: StringName) -> void:
 		if key == bridge.local_key:
 			_adopt_player(game.players[key]))
+	# A new house (or the first): the witches drawn for the old one go with it.
+	bridge.hello_received.connect(func(_key: StringName) -> void:
+		_forget_witches()
+		_say(game.house_name().to_upper(), 3.0))
 	bridge.said.connect(func(text: String) -> void: _say(text))
 	bridge.notice_received.connect(func(text: String) -> void: _say(text))
 
@@ -479,6 +486,14 @@ func _draw_witches() -> void:
 	for key: String in _witch_views.keys():
 		var n := int(key.split("|")[0])
 		(_witch_views[key] as Node3D).visible = n == player.level
+
+
+func _forget_witches() -> void:
+	for view: Node in _witch_views.values():
+		if is_instance_valid(view):
+			view.queue_free()
+
+	_witch_views.clear()
 
 
 ## A witch: a tall black robe, a pale face, a hat, two red eyes, and the cone of her sight as a

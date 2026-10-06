@@ -41,6 +41,8 @@ signal level_done(key: StringName, number: int)
 signal won(key: StringName)
 signal player_joined(key: StringName)
 signal player_left(key: StringName)
+## A different house is being played: every level is new, and everybody is in its lobby.
+signal house_changed(id: StringName)
 
 @export var authoritative: bool = true
 @export var draws: bool = true
@@ -60,6 +62,10 @@ var players: Dictionary = {}
 ## Keys of everybody who has ever won here, kept in config.winners_file.
 var winners: Dictionary = {}
 
+## Every house this server can play: id -> {"name", "directory"}. And the one being played.
+var houses: Dictionary = {}
+var house_id: StringName = &""
+
 var tick_rate: int = 60
 var tick: int = 0
 
@@ -73,9 +79,9 @@ func _ready() -> void:
 	tick_rate = Engine.physics_ticks_per_second
 
 	if authoritative:
-		var dir := config.level_directory
-		var _n := load_directory(dir if dir.begins_with("res://") or dir.begins_with("user://") else LmPaths.rebase("res://%s" % dir))
-		build_levels()
+		_find_houses()
+		var start := StringName(config.house) if houses.has(StringName(config.house)) else &"house"
+		var _h := change_house(start)
 		_read_winners()
 
 	if register_service:
@@ -90,6 +96,60 @@ func _exit_tree() -> void:
 		DotRegistry.unregister_instance(SERVICE, self)
 
 
+static func _resolve(dir: String) -> String:
+	return dir if dir.begins_with("res://") or dir.begins_with("user://") else LmPaths.rebase("res://%s" % dir)
+
+
+## The built-in house, and every directory under [member LmConfig.houses_directory] with a
+## house.json, in res:// and in user:// (an owner's own).
+func _find_houses() -> void:
+	houses.clear()
+	houses[&"house"] = {"name": "The House", "directory": _resolve(config.level_directory)}
+
+	for root in [_resolve(config.houses_directory), "user://lookatme_houses"]:
+		var dir := DirAccess.open(root)
+
+		if dir == null:
+			continue
+
+		for sub in dir.get_directories():
+			var path: String = root.path_join(sub)
+			var meta: Variant = JSON.parse_string(FileAccess.get_file_as_string(path.path_join("house.json"))) if FileAccess.file_exists(path.path_join("house.json")) else null
+
+			if meta is Dictionary:
+				houses[StringName(str((meta as Dictionary).get("id", sub)))] = {"name": str((meta as Dictionary).get("name", sub)), "directory": path}
+
+
+## Plays house [param id]: its levels replace these, and everybody starts again in its lobby.
+## What the vote does, and what `lm_house` does for an operator.
+func change_house(id: StringName) -> DotResult:
+	if not houses.has(id):
+		return DotResult.fail(DotError.CODE_INVALID, "There is no house '%s'." % id)
+
+	documents.clear()
+	refused.clear()
+	var _n := load_directory(str(houses[id]["directory"]))
+
+	if documents.is_empty():
+		return DotResult.fail(DotError.CODE_INVALID, "House '%s' has no levels." % id)
+
+	build_levels()
+	house_id = id
+
+	for key: StringName in players:
+		var player: LmPlayer = players[key]
+		player.best = 1
+		send_to(player, 1)
+
+	DotLog.info(CHANNEL, "a house opened", {"house": String(id), "levels": levels.size()})
+	house_changed.emit(id)
+	return DotResult.success(id)
+
+
+func house_name() -> String:
+	return str(houses.get(house_id, {}).get("name", house_id))
+
+
 func load_directory(directory: String) -> int:
 	var dir := DirAccess.open(directory)
 
@@ -98,7 +158,7 @@ func load_directory(directory: String) -> int:
 		return 0
 
 	for file in dir.get_files():
-		if file.get_extension() != "json":
+		if file.get_extension() != "json" or file == "house.json":
 			continue
 
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(directory.path_join(file)))
@@ -114,7 +174,11 @@ func load_directory(directory: String) -> int:
 
 ## Builds every level, laid side by side along +X.
 func build_levels() -> void:
+	# Out of the tree now, not at the end of the frame: a house change builds the new levels
+	# under the same names in the same places, and two Level_01s for a frame is two sets of
+	# walls in one place.
 	for n: int in levels:
+		remove_child(levels[n] as Node)
 		(levels[n] as Node).queue_free()
 
 	levels.clear()
@@ -653,7 +717,7 @@ func _write_winners() -> void:
 
 
 func describe() -> Dictionary:
-	return {"levels": levels.size(), "players": players.size(), "winners": winners.size(), "tick": tick}
+	return {"house": String(house_id), "houses": houses.size(), "levels": levels.size(), "players": players.size(), "winners": winners.size(), "tick": tick}
 
 
 func describe_lines() -> PackedStringArray:

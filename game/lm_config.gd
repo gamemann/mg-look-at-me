@@ -76,8 +76,19 @@ extends DotConfig
 @export_range(2.0, 60.0, 0.5) var flashlight_range: float = 18.0
 @export_range(5.0, 90.0, 1.0) var flashlight_angle: float = 32.0
 
-## Where level documents are read from.
+## Where the built-in house's level documents are read from.
 @export var level_directory: String = "levels"
+
+## Where other houses are: every subdirectory with a house.json in it is one. An owner's own
+## house is a directory of level documents dropped in here.
+@export var houses_directory: String = "houses"
+
+## The house a server opens with.
+@export var house: String = "house"
+
+## Minutes a house is played before the players vote on the next (the same house is on the
+## ballot). 0 is no limit: the house changes only when players rock the vote.
+@export_range(0.0, 600.0, 1.0) var house_minutes: float = 45.0
 
 ## Where who has won is kept, so a winner's mark survives a restart.
 @export var winners_file: String = "user://lookatme_winners.json"

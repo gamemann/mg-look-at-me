@@ -48,8 +48,23 @@ LEVEL_NAMES = [
 ]
 
 
-def level(n):
-    rng = random.Random(1000 + n)
+# Every house the builder writes: id -> (directory, how many levels, seed base, level names,
+# what the start room of level 1 is called). A server plays one house at a time and votes
+# between them (game/lm_vote.gd); an owner's own house is a directory of the same documents.
+ASYLUM_NAMES = [
+    "Admissions", "The Day Room", "Lights Out", "Ward B", "Solitary", "The Dispensary", "Visiting Hours",
+    "Night Shift", "The Records Room", "Hydrotherapy", "The East Wing", "The Chapel", "Restraints",
+    "The Director's Office", "The Basement", "Discharge",
+]
+
+HOUSES = {
+    "house": ("levels", LEVELS, 1000, None, "The Lobby", "The House"),
+    "asylum": ("houses/asylum", 16, 5000, ASYLUM_NAMES, "Reception", "The Asylum"),
+}
+
+
+def level(n, seed_base=1000, level_names=None, lobby_name="The Lobby", total=LEVELS, prefix="lm"):
+    rng = random.Random(seed_base + n)
     rooms = []
     occupied = {}
 
@@ -68,7 +83,7 @@ def level(n):
     # The start room. Level 1's is the lobby: the biggest room in the game, lit, where everybody
     # arrives and talks before anybody goes through a door.
     if n == 1:
-        put("The Lobby", 0, 0, 3, 3, None, True)
+        put(lobby_name, 0, 0, 3, 3, None, True)
         rooms[0]["light"] = 0.8
     else:
         put("Landing", 0, 0, 2, 1, None, True)
@@ -204,9 +219,9 @@ def level(n):
         room["light"] = float(room["light"])
 
     return {
-        "format": 1, "kind": "level", "id": "lm_%02d" % n, "number": n,
-        "name": LEVEL_NAMES[n - 1], "author": "mg-look-at-me",
-        "blurb": "Level %d of %d." % (n, LEVELS),
+        "format": 1, "kind": "level", "id": "%s_%02d" % (prefix, n), "number": n,
+        "name": (level_names or LEVEL_NAMES)[n - 1], "author": "mg-look-at-me",
+        "blurb": "Level %d of %d." % (n, total),
         "cell": CELL, "height": HEIGHT,
         "rooms": rooms, "doors": doors, "items": items, "stations": stations,
         "steps": steps, "witches": witches,
@@ -310,20 +325,36 @@ def text_of(doc):
 
 def main():
     check = "--check" in sys.argv
-    os.makedirs(OUT, exist_ok=True)
     stale, broken = [], []
-    for n in range(1, LEVELS + 1):
-        doc = level(n)
-        if not solve(doc):
-            broken.append(doc["id"])
-        path = os.path.join(OUT, doc["id"] + ".json")
-        text = text_of(doc)
+    written = 0
+
+    for house_id, (directory, total, seed_base, names, lobby_name, title) in HOUSES.items():
+        out = os.path.join(HERE, "..", directory)
+        os.makedirs(out, exist_ok=True)
+        prefix = "lm" if house_id == "house" else house_id
+        meta = os.path.join(out, "house.json")
+        meta_text = json.dumps({"kind": "house", "id": house_id, "name": title}, indent="\t") + "\n"
         if check:
-            if not os.path.exists(path) or open(path).read() != text:
-                stale.append(doc["id"])
-            continue
-        with open(path, "w") as f:
-            f.write(text)
+            if not os.path.exists(meta) or open(meta).read() != meta_text:
+                stale.append(house_id + "/house.json")
+        else:
+            with open(meta, "w") as f:
+                f.write(meta_text)
+
+        for n in range(1, total + 1):
+            doc = level(n, seed_base, names, lobby_name, total, prefix)
+            if not solve(doc):
+                broken.append(doc["id"])
+            path = os.path.join(out, doc["id"] + ".json")
+            text = text_of(doc)
+            if check:
+                if not os.path.exists(path) or open(path).read() != text:
+                    stale.append(doc["id"])
+                continue
+            with open(path, "w") as f:
+                f.write(text)
+            written += 1
+
     if broken:
         print("cannot be finished:", ", ".join(broken))
         return 1
@@ -331,7 +362,7 @@ def main():
         print("not what tools/build_levels.py writes:", ", ".join(stale))
         return 1
     if not check:
-        print("wrote %d levels, every one finishable" % LEVELS)
+        print("wrote %d levels in %d houses, every one finishable" % (written, len(HOUSES)))
     return 0
 
 

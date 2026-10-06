@@ -1,0 +1,252 @@
+{
+	"format": 1,
+	"kind": "level",
+	"id": "asylum_02",
+	"number": 2,
+	"name": "The Day Room",
+	"author": "mg-look-at-me",
+	"blurb": "Level 2 of 16.",
+	"cell": 8.0,
+	"height": 3.2,
+	"rooms": [
+		{
+			"id": "r0",
+			"name": "Landing",
+			"x": 0,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": true,
+			"light": 0.45
+		},
+		{
+			"id": "r1",
+			"name": "Dining Room",
+			"x": 0,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r2",
+			"name": "Larder",
+			"x": -1,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r3",
+			"name": "Nursery",
+			"x": 1,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r4",
+			"name": "Bedroom",
+			"x": -1,
+			"z": -2,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		}
+	],
+	"doors": [
+		{
+			"id": "d0",
+			"a": "r0",
+			"b": "r1",
+			"lock": "key_green_0",
+			"label": "Green door",
+			"colour": "green"
+		},
+		{
+			"id": "d1",
+			"a": "r1",
+			"b": "r2",
+			"lock": "key_orange_1",
+			"label": "Orange door",
+			"colour": "orange"
+		},
+		{
+			"id": "d2",
+			"a": "r1",
+			"b": "r3",
+			"lock": "key_blue_2",
+			"label": "Blue door",
+			"colour": "blue"
+		},
+		{
+			"id": "d3",
+			"a": "r2",
+			"b": "r4",
+			"lock": "key_purple_3",
+			"label": "Purple door",
+			"colour": "purple"
+		},
+		{
+			"id": "exit",
+			"a": "r4",
+			"b": "",
+			"side": "n",
+			"lock": "key_gold",
+			"label": "The way out",
+			"colour": "gold",
+			"exit": true
+		}
+	],
+	"items": [
+		{
+			"id": "key_green_0",
+			"name": "Green key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.54,
+				0.6
+			],
+			"colour": "green"
+		},
+		{
+			"id": "key_orange_1",
+			"name": "Orange key",
+			"kind": "key",
+			"room": "r1",
+			"at": [
+				0.77,
+				0.69
+			],
+			"colour": "orange"
+		},
+		{
+			"id": "key_blue_2",
+			"name": "Blue key",
+			"kind": "key",
+			"room": "r1",
+			"at": [
+				0.44,
+				0.2
+			],
+			"colour": "blue"
+		},
+		{
+			"id": "key_purple_3",
+			"name": "Purple key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.25,
+				0.3
+			],
+			"colour": "purple"
+		},
+		{
+			"id": "key_gold",
+			"name": "Gold key",
+			"kind": "key",
+			"room": "r4",
+			"at": [
+				0.4,
+				0.7
+			],
+			"colour": "gold"
+		}
+	],
+	"stations": [],
+	"steps": [
+		{
+			"text": "Find the green key",
+			"when": {
+				"holds": "key_green_0"
+			}
+		},
+		{
+			"text": "Open the green door",
+			"when": {
+				"opened": "d0"
+			}
+		},
+		{
+			"text": "Find the orange key",
+			"when": {
+				"holds": "key_orange_1"
+			}
+		},
+		{
+			"text": "Open the orange door",
+			"when": {
+				"opened": "d1"
+			}
+		},
+		{
+			"text": "Find the blue key",
+			"when": {
+				"holds": "key_blue_2"
+			}
+		},
+		{
+			"text": "Open the blue door",
+			"when": {
+				"opened": "d2"
+			}
+		},
+		{
+			"text": "Find the purple key",
+			"when": {
+				"holds": "key_purple_3"
+			}
+		},
+		{
+			"text": "Open the purple door",
+			"when": {
+				"opened": "d3"
+			}
+		},
+		{
+			"text": "Find the gold key",
+			"when": {
+				"holds": "key_gold"
+			}
+		},
+		{
+			"text": "Get out",
+			"when": {
+				"opened": "exit"
+			}
+		}
+	],
+	"witches": [
+		{
+			"path": [
+				[
+					"room",
+					"r2"
+				],
+				[
+					"door",
+					"d3"
+				],
+				[
+					"room",
+					"r4"
+				],
+				[
+					"door",
+					"d3"
+				]
+			],
+			"speed": 1.6,
+			"sight": 8.7,
+			"cone": 72.4
+		}
+	]
+}

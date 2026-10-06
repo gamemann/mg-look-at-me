@@ -10,8 +10,8 @@ const LmLevel := preload("res://game/lm_level.gd")
 const LmPlayer := preload("res://game/lm_player.gd")
 const LmProgress := preload("res://game/lm_progress.gd")
 
-const SECTIONS := 8
-const CHECKS := 30
+const SECTIONS := 9
+const CHECKS := 35
 
 var _passed := 0
 var _failed := 0
@@ -44,6 +44,7 @@ func _ready() -> void:
 	_test_commands()
 	await _test_winning()
 	_test_shared()
+	_test_houses()
 
 	print("")
 	print("%d sections entered, %d finished" % [_entered, _finished])
@@ -301,6 +302,23 @@ func _test_shared() -> void:
 	_check(not (a.taken.is_empty() and a.opened.is_empty() and a.used.is_empty()) and c.taken == a.taken and c.opened == a.opened and c.used == a.used,
 		"what one does, everybody on the level has", "%s / %s" % [a.describe(), c.describe()])
 	game.config.shared_progress = false
+	_finished_section()
+
+
+func _test_houses() -> void:
+	_section("houses")
+	_check(game.houses.size() == 2 and game.houses.has(&"asylum") and game.house_id == &"house", "two houses, playing the House (%s)" % [game.houses.keys()])
+	var a: LmPlayer = game.players[&"a"]
+	a.best = 9
+	game.send_to(a, 9)
+	var told := [&""]
+	game.house_changed.connect(func(id: StringName) -> void: told[0] = id)
+	var changed := game.change_house(&"asylum")
+	_check(changed.ok and told[0] == &"asylum" and game.levels.size() == 16 and game.house_name() == "The Asylum", "the Asylum opens: sixteen levels")
+	_check(a.level == 1 and a.best == 1, "and everybody starts again in its lobby")
+	_check(not game.change_house(&"nowhere").ok, "a house that does not exist is refused")
+	var _back := game.change_house(&"house")
+	_check(game.levels.size() == 32, "and the House comes back")
 	_finished_section()
 
 

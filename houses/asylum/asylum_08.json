@@ -1,0 +1,426 @@
+{
+	"format": 1,
+	"kind": "level",
+	"id": "asylum_08",
+	"number": 8,
+	"name": "Night Shift",
+	"author": "mg-look-at-me",
+	"blurb": "Level 8 of 16.",
+	"cell": 8.0,
+	"height": 3.2,
+	"rooms": [
+		{
+			"id": "r0",
+			"name": "Landing",
+			"x": 0,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": true,
+			"light": 0.45
+		},
+		{
+			"id": "r1",
+			"name": "Storeroom",
+			"x": 2,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r2",
+			"name": "Dining Room",
+			"x": -1,
+			"z": -1,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r3",
+			"name": "Sewing Room",
+			"x": 3,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r4",
+			"name": "Bathroom",
+			"x": 2,
+			"z": 1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r5",
+			"name": "Kitchen",
+			"x": 1,
+			"z": -2,
+			"w": 2,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r6",
+			"name": "Pantry",
+			"x": 4,
+			"z": -1,
+			"w": 1,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r7",
+			"name": "Nursery",
+			"x": 3,
+			"z": -3,
+			"w": 2,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		}
+	],
+	"doors": [
+		{
+			"id": "d0",
+			"a": "r0",
+			"b": "r1",
+			"lock": "key_white_0",
+			"label": "White door",
+			"colour": "white"
+		},
+		{
+			"id": "d1",
+			"a": "r0",
+			"b": "r2",
+			"lock": "crowbar_1",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d2",
+			"a": "r1",
+			"b": "r3",
+			"lock": "",
+			"label": "Door",
+			"colour": "brown"
+		},
+		{
+			"id": "d3",
+			"a": "r1",
+			"b": "r4",
+			"lock": "crowbar_3",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d4",
+			"a": "r1",
+			"b": "r5",
+			"lock": "@fusebox_4",
+			"label": "Electric gate",
+			"colour": "steel"
+		},
+		{
+			"id": "d5",
+			"a": "r3",
+			"b": "r6",
+			"lock": "@fusebox_5",
+			"label": "Electric gate",
+			"colour": "steel"
+		},
+		{
+			"id": "d6",
+			"a": "r3",
+			"b": "r7",
+			"lock": "key_yellow_6",
+			"label": "Yellow door",
+			"colour": "yellow"
+		},
+		{
+			"id": "exit",
+			"a": "r7",
+			"b": "",
+			"side": "n",
+			"lock": "key_gold",
+			"label": "The way out",
+			"colour": "gold",
+			"exit": true
+		}
+	],
+	"items": [
+		{
+			"id": "key_white_0",
+			"name": "White key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.55,
+				0.46
+			],
+			"colour": "white"
+		},
+		{
+			"id": "crowbar_1",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r0",
+			"at": [
+				0.73,
+				0.6
+			]
+		},
+		{
+			"id": "crowbar_3",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r2",
+			"at": [
+				0.4,
+				0.2
+			]
+		},
+		{
+			"id": "fuse_4",
+			"name": "Fuse",
+			"kind": "fuse",
+			"room": "r0",
+			"at": [
+				0.31,
+				0.44
+			]
+		},
+		{
+			"id": "fuse_5",
+			"name": "Fuse",
+			"kind": "fuse",
+			"room": "r0",
+			"at": [
+				0.78,
+				0.71
+			]
+		},
+		{
+			"id": "key_yellow_6",
+			"name": "Yellow key",
+			"kind": "key",
+			"room": "r4",
+			"at": [
+				0.31,
+				0.28
+			],
+			"colour": "yellow"
+		},
+		{
+			"id": "key_gold",
+			"name": "Gold key",
+			"kind": "key",
+			"room": "r4",
+			"at": [
+				0.28,
+				0.69
+			],
+			"colour": "gold"
+		}
+	],
+	"stations": [
+		{
+			"id": "fusebox_4",
+			"name": "Fuse box",
+			"kind": "fusebox",
+			"room": "r2",
+			"at": [
+				0.35,
+				0.35
+			],
+			"needs": "fuse_4",
+			"gives": "",
+			"opens": "d4",
+			"consumes": true,
+			"verb": "Fit the fuse"
+		},
+		{
+			"id": "fusebox_5",
+			"name": "Fuse box",
+			"kind": "fusebox",
+			"room": "r3",
+			"at": [
+				0.5,
+				0.34
+			],
+			"needs": "fuse_5",
+			"gives": "",
+			"opens": "d5",
+			"consumes": true,
+			"verb": "Fit the fuse"
+		}
+	],
+	"steps": [
+		{
+			"text": "Find the white key",
+			"when": {
+				"holds": "key_white_0"
+			}
+		},
+		{
+			"text": "Open the white door",
+			"when": {
+				"opened": "d0"
+			}
+		},
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_1"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d1"
+			}
+		},
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_3"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d3"
+			}
+		},
+		{
+			"text": "Find a fuse",
+			"when": {
+				"holds": "fuse_4"
+			}
+		},
+		{
+			"text": "Fit it in the fuse box",
+			"when": {
+				"used": "fusebox_4"
+			}
+		},
+		{
+			"text": "Find a fuse",
+			"when": {
+				"holds": "fuse_5"
+			}
+		},
+		{
+			"text": "Fit it in the fuse box",
+			"when": {
+				"used": "fusebox_5"
+			}
+		},
+		{
+			"text": "Find the yellow key",
+			"when": {
+				"holds": "key_yellow_6"
+			}
+		},
+		{
+			"text": "Open the yellow door",
+			"when": {
+				"opened": "d6"
+			}
+		},
+		{
+			"text": "Find the gold key",
+			"when": {
+				"holds": "key_gold"
+			}
+		},
+		{
+			"text": "Get out",
+			"when": {
+				"opened": "exit"
+			}
+		}
+	],
+	"witches": [
+		{
+			"path": [
+				[
+					"at",
+					"r2",
+					0.2,
+					0.2
+				],
+				[
+					"at",
+					"r2",
+					0.8,
+					0.2
+				],
+				[
+					"at",
+					"r2",
+					0.8,
+					0.8
+				],
+				[
+					"at",
+					"r2",
+					0.2,
+					0.8
+				]
+			],
+			"speed": 1.9,
+			"sight": 10.8,
+			"cone": 79.6
+		},
+		{
+			"path": [
+				[
+					"room",
+					"r4"
+				],
+				[
+					"door",
+					"d3"
+				],
+				[
+					"room",
+					"r1"
+				],
+				[
+					"door",
+					"d4"
+				],
+				[
+					"room",
+					"r5"
+				],
+				[
+					"door",
+					"d4"
+				],
+				[
+					"room",
+					"r1"
+				],
+				[
+					"door",
+					"d3"
+				]
+			],
+			"speed": 2.0,
+			"sight": 10.8,
+			"cone": 79.6
+		}
+	]
+}

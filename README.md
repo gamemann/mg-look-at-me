@@ -31,6 +31,10 @@ The game is a dot-server pack: `scenes/lm_server.tscn` is the house, `game/lm_mo
 
 Every rule is a setting, layered like everything in the family: defaults < `user://cfg/lookatme.json` < `LM_*` environment < `--lm-*` command line. The meter (`exposure_rate`, `decay_rate`, `decay_delay`), what changes it (`flashlight_exposure`, `flashlight_sight`, `crouch_exposure`, `still_exposure`), what a catch costs (`caught_penalty`: keep what you hold, or lose the level), the witches (`witch_speed_scale`, `witch_sight_scale`, `witch_cone_scale`, `witch_head_sweep`), the dark (`darkness_ambient`, `flashlight_range`, `flashlight_angle`), `shared_progress` (one player's key opens the door for everybody on the level; off by default) and `allow_third_person`.
 
+## Houses
+
+A house is a set of levels. Two ship — The House (32 levels) and The Asylum (16) — and a server plays one at a time: after `house_minutes` (45) the players vote on the next, the same house and an extension on the ballot; `!rtv` calls a vote any time; an operator types `lm_house asylum`. Your own house is a directory of level documents with a `house.json` (`{"kind": "house", "id": "mine", "name": "My House"}`) in `houses/` or `user://lookatme_houses/`.
+
 ## Writing a level
 
 A level is one JSON file in `levels/`: rooms on a grid (a room is `w` by `d` cells of `cell` metres), doors on the walls rooms share (or, for the way out, on an outside wall), items, stations (things you use an item on: `needs`, `gives`, `opens`), steps (the text the HUD shows, each done when you hold, opened or used something), and witches (a loop of room centres, doorways and points in rooms, a speed, a sight range and a cone). The shipped thirty-two are written by `tools/build_levels.py`, which grows each level's rooms as a tree, locks every new door behind a puzzle whose parts are already reachable, and refuses to write a level it cannot finish.
@@ -39,7 +43,7 @@ A level is one JSON file in `levels/`: rooms on a grid (a room is `w` by `d` cel
 
 ```bash
 godot --headless --path . --import
-godot --headless --path . res://examples/headless_run.tscn   # 8 sections, 30 checks
+godot --headless --path . res://examples/headless_run.tscn   # 9 sections, 35 checks
 godot --headless --path . res://examples/headless_net.tscn   # a server and a predicting client, 19 checks
 godot --headless --path . res://examples/dedicated.tscn      # a real server and the module, 14 checks
 tools/build_levels.py --check

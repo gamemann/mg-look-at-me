@@ -11,7 +11,7 @@ const LmPlayer := preload("res://game/lm_player.gd")
 const LmLevel := preload("res://game/lm_level.gd")
 
 const SECTIONS := 6
-const CHECKS := 19
+const CHECKS := 20
 const CLIENT_PEER := 7
 const SESSION := 42
 const INPUT_LEAD := 2
@@ -239,6 +239,13 @@ func _test_progress_and_meter() -> void:
 	await _steps(4)
 	_check(server_player.level == 3 and mine.level == 3, "/l3 moves them on both ends", "%d / %d" % [server_player.level, mine.level])
 	_check(mine.opened.is_empty() and mine.controller.body.exclude.size() == 1, "with a fresh level: no doors open for them there")
+	var _changed := _server_game.change_house(&"asylum")
+	_exchange()
+	await _steps(6)
+	_exchange()
+	await _steps(4)
+	_check(_client_game.levels.size() == 16 and _client_game.house_id == &"asylum" and mine.level == 1,
+		"a new house reaches the client: it rebuilds sixteen levels and stands in the new lobby (%d, %s, %d)" % [_client_game.levels.size(), _client_game.house_id, mine.level])
 	_server_bridge.remove_peer(CLIENT_PEER)
 	_check(not _server_game.players.has(_key), "a peer that leaves takes its player with it")
 	_check(_server_net.registry.all().is_empty(), "and its entity")

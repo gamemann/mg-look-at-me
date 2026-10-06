@@ -92,6 +92,11 @@ func attach(p_game: Object, p_net: DotNetManager) -> DotResult:
 		game.caught.connect(_send_progress)
 		game.level_done.connect(func(key: StringName, _n: int) -> void: _send_progress.call_deferred(key))
 		game.player_left.connect(func(key: StringName) -> void: _broadcast(LmEvents.Kind.LEAVE, {"key": String(key)}))
+		# A new house: every client is sent it, as a joiner is, and their progress after.
+		game.house_changed.connect(func(_id: StringName) -> void:
+			for peer_id in _ready_peers.keys():
+				_send_house(int(peer_id))
+				_send_progress(key_of_peer(int(peer_id))))
 
 	return DotResult.success(true)
 
@@ -202,10 +207,23 @@ func _admit(peer_id: int) -> void:
 	if not net.peers().has(peer_id):
 		net.add_peer(peer_id)
 
+	_send_house(peer_id)
+
+	for other: StringName in _behaviours:
+		_tell(peer_id, LmEvents.Kind.JOIN, _join_body(other))
+
+	_broadcast(LmEvents.Kind.JOIN, _join_body(key))
+	_send_progress(key)
+
+
+## The house to one peer: a HELLO saying how many levels follow, then one LEVEL each.
+func _send_house(peer_id: int) -> void:
+	var key: StringName = _key_of_peer.get(peer_id, &"")
 	var numbers: Array = game.levels.keys()
 	numbers.sort()
 	_tell(peer_id, LmEvents.Kind.HELLO, {
 		"you": String(key), "tick_rate": game.tick_rate, "tick": net.clock.tick, "levels": numbers.size(),
+		"house": String(game.house_id), "house_name": game.house_name(),
 		"config": {"allow_third_person": game.config.allow_third_person, "witch_speed_scale": game.config.witch_speed_scale,
 			"witch_sight_scale": game.config.witch_sight_scale, "witch_cone_scale": game.config.witch_cone_scale,
 			"witch_head_sweep": game.config.witch_head_sweep, "reach": game.config.reach,
@@ -214,12 +232,6 @@ func _admit(peer_id: int) -> void:
 
 	for n: int in numbers:
 		_tell(peer_id, LmEvents.Kind.LEVEL, game.documents[n])
-
-	for other: StringName in _behaviours:
-		_tell(peer_id, LmEvents.Kind.JOIN, _join_body(other))
-
-	_broadcast(LmEvents.Kind.JOIN, _join_body(key))
-	_send_progress(key)
 
 
 func _join_body(key: StringName) -> Dictionary:
@@ -436,6 +448,8 @@ func _on_event(message: DotNetMessage) -> void:
 		LmEvents.Kind.HELLO:
 			local_key = StringName(str(data.get("you", "")))
 			_levels_expected = int(data.get("levels", 0))
+			game.house_id = StringName(str(data.get("house", "house")))
+			game.houses[game.house_id] = {"name": str(data.get("house_name", "")), "directory": ""}
 			_levels_got = []
 			var settings: Dictionary = data.get("config", {})
 
