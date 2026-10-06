@@ -25,7 +25,7 @@ game/
   lm_figure.gd, lm_avatars.gd, lm_paths.gd   mg-deathrun's, renamed (Kenney blocky characters, the avatar schema, mount paths)
 levels/          lm_01 .. lm_32, written by tools/build_levels.py
 scenes/          lm_server.tscn
-examples/        headless_run (8 sections, 29 checks), headless_net (6, 19), dedicated (6, 14)
+examples/        headless_run (8 sections, 30 checks), headless_net (6, 19), dedicated (6, 14)
 tools/           build_levels.py; shot.sh/.gd (render: eyes, third, witch, above); audio_probe (xvfb only: is there a sound); probe.gd
 ```
 
@@ -49,6 +49,8 @@ Each tick, every witch on a player's level asks: in range (`sight`, × `flashlig
 
 Movement is mg-deathrun's: an `LmNetCommand` a tick into dot-net's input buffer, the owner predicting with the same controller the server simulates. Everything else is mg-dangerous-delivery's: a few JSON events and requests. **The doors are why this game's prediction is its own.** A door open only for one player must be open in that player's PREDICTING controller too, or the client predicts a wall the server walks them through and every snapshot drags them back; so PROGRESS (the owner's holds, opened, used, taken) goes to the owner alone and is applied to the client's own controller before its next predicted tick. `headless_net` walks a client through a door open only for it and ends 5 mm from the server. The levels go one per LEVEL message after the HELLO: all 32 are 210 KB, past a WebSocket's 64 KiB outbound buffer, and a browser client sent them in one would never learn the house it was standing in. Witches are never sent (Decision 2); `headless_net` checks both ends pose all of them alike from the clock. A chat line beginning with a command the house knows (`/r`, `/l3`) is answered by the house (`LmModule._on_say_requested`), the rest goes to the chat router.
 
+**Furniture** (Kenney's Furniture Kit, 21 models, ×2.3) lines the walls, themed by room name (`LmLevel.FURNITURE`, `ROOM_THEMES`), placed from `LmHash.unit` of level, room, wall and slot so every machine furnishes alike, never within 1.9 m of a door and never deeper than 1.4 m (items are always further in than that, so nothing a level needs is ever behind a sofa). Every piece is a solid StaticBody3D on the world layer, built on a server too: it blocks movement and a witch's sight like a wall, which is what makes it something to hide behind.
+
 ## What running and rendering found
 
 - **dot-player-controller needs dot_player and dot_net linked**; without them `DotFpsController` does not parse and every script that names it fails with it.
@@ -62,7 +64,7 @@ Movement is mg-deathrun's: an `LmNetCommand` a tick into dot-net's input buffer,
 godot --headless --path . --import
 find . -name '*.gd' -not -path './.godot/*' -not -path './addons/*' | while read f; do
     godot --headless --path . --check-only --script "res://${f#./}"; done
-godot --headless --path . res://examples/headless_run.tscn   # 8 sections, 29 checks
+godot --headless --path . res://examples/headless_run.tscn   # 8 sections, 30 checks
 godot --headless --path . res://examples/headless_net.tscn   # 6 sections, 19 checks: predicted, through a door open for one
 godot --headless --path . res://examples/dedicated.tscn      # 6 sections, 14 checks
 tools/build_levels.py --check
@@ -76,5 +78,4 @@ In the order they are worth doing.
 1. **A browser look**, then publishing: the pack is `tmc/lookatme` (dot-server-deploy `content/lookatme/`), and the release order is the family's.
 2. **dot-map and dot-vote**: the brief asks that the house be a map an owner can replace and vote on. A map is a directory of level documents; dot-vote's list source over the directories, as mg-deathrun's course vote does over courses.
 3. **TMC avatars** through dot-platform (the figure and the avatar schema are mg-deathrun's and already translate the site's).
-4. **Kenney furniture** (the Furniture Kit) in rooms, for something to hide behind; today a room is four walls and a stand.
-5. **The GitHub repository** is the owner's to create.
+4. **The GitHub repository** is the owner's to create.

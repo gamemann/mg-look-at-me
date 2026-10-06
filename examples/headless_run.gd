@@ -11,7 +11,7 @@ const LmPlayer := preload("res://game/lm_player.gd")
 const LmProgress := preload("res://game/lm_progress.gd")
 
 const SECTIONS := 8
-const CHECKS := 29
+const CHECKS := 30
 
 var _passed := 0
 var _failed := 0
@@ -87,6 +87,8 @@ func _test_levels() -> void:
 				biggest = false
 
 	_check(biggest, "the lobby is the biggest room in the game")
+	var furniture := (game.levels[16] as Node).find_children("Furniture_*", "StaticBody3D", true, false).size()
+	_check(furniture > 5, "and the house is furnished, solid even on a server that draws nothing (%d pieces on level 16)" % furniture)
 	_finished_section()
 
 

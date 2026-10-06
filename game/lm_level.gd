@@ -12,7 +12,34 @@ extends Node3D
 ## has opened it has its RID in their controller's exclusion list, so it is open for them and
 ## shut for everybody else (see [LmGame]). The level never knows who opened what.
 
+const LmPaths := preload("lm_paths.gd")
+const LmWeatherHash := preload("lm_hash.gd")
+
 const CHANNEL := "lookatme.level"
+
+## Kenney's furniture is built about 0.43 of a person's size.
+const FURNITURE_SCALE := 2.3
+
+## Furniture by what a room is called: something to hide behind that belongs there.
+const FURNITURE := {
+	"kitchen": ["kitchenFridge", "kitchenStove", "kitchenCabinet", "kitchenSink", "table"],
+	"bath": ["bathtub", "bathroomSink", "washer", "dryer"],
+	"study": ["bookcaseClosed", "bookcaseOpen", "bookcaseClosedWide", "desk", "loungeChair", "lampRoundFloor"],
+	"sitting": ["loungeSofa", "loungeChair", "tableCoffee", "pottedPlant", "bookcaseClosedWide", "lampRoundFloor"],
+	"bedroom": ["sideTableDrawers", "bookcaseClosed", "cardboardBoxClosed", "coatRackStanding", "loungeChair"],
+	"store": ["cardboardBoxClosed", "cardboardBoxClosed", "bookcaseClosedWide", "table", "washer"],
+}
+
+const ROOM_THEMES := {
+	"kitchen": "kitchen", "pantry": "kitchen", "larder": "kitchen", "dining": "kitchen", "servants": "kitchen",
+	"bath": "bath", "laundry": "bath",
+	"library": "study", "study": "study", "gallery": "study", "music": "study",
+	"parlour": "sitting", "lobby": "sitting", "landing": "sitting", "hall": "sitting", "conservatory": "sitting", "chapel": "sitting",
+	"bedroom": "bedroom", "nursery": "bedroom", "sewing": "bedroom",
+}
+
+## Model id -> PackedScene, loaded once for every level.
+static var _furniture_scenes: Dictionary = {}
 
 const DOOR_WIDTH := 1.5
 const DOOR_HEIGHT := 2.3
@@ -306,6 +333,7 @@ func _build_room(room_id: String) -> void:
 
 	for side in ["n", "s", "w", "e"]:
 		_build_wall(root, rect, side, height, wall_mat)
+		_furnish(root, room_id, rect, side)
 
 	var light := float(rooms[room_id]["doc"].get("light", 0.0))
 
@@ -336,6 +364,115 @@ func _build_room(room_id: String) -> void:
 		sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		sign.position = Vector3(centre.x, height - 0.5, centre.y)
 		root.add_child(sign)
+
+
+## Furniture along one wall: something to hide behind, as solid to a witch's sight as the
+## wall. Never in front of a door, and never further from the wall than an item is ever put
+## (items are at least a fifth of a cell in), so nothing a level needs is ever behind it.
+## Placed from a hash of the level, room and slot, so every machine furnishes alike.
+func _furnish(root: Node, room_id: String, rect: Rect2, side: String) -> void:
+	var name_text := str(rooms[room_id]["doc"].get("name", "")).to_lower()
+	var theme := "store"
+
+	for word: String in ROOM_THEMES:
+		if name_text.contains(word):
+			theme = ROOM_THEMES[word]
+			break
+
+	var choices: Array = FURNITURE[theme]
+	var along_x := side == "n" or side == "s"
+	var start := rect.position.x if along_x else rect.position.y
+	var end := rect.end.x if along_x else rect.end.y
+	var edge := rect.position.y if side == "n" else (rect.end.y if side == "s" else (rect.position.x if side == "w" else rect.end.x))
+	var inward := {"n": Vector3(0, 0, 1), "s": Vector3(0, 0, -1), "w": Vector3(1, 0, 0), "e": Vector3(-1, 0, 0)}[side] as Vector3
+	var facing := {"n": 0.0, "s": PI, "w": PI * 0.5, "e": -PI * 0.5}[side] as float
+	var slot := 0
+	var cursor := start + 1.4
+
+	while cursor < end - 1.4:
+		var roll := LmWeatherHash.unit("%s|%s|%s|%d" % [doc.get("id", ""), room_id, side, slot])
+		var clear := true
+
+		for door_id: String in doors:
+			var c: Vector3 = doors[door_id]["centre"]
+
+			if absf((c.z if along_x else c.x) - edge) < 0.05 and absf((c.x if along_x else c.z) - cursor) < 1.9:
+				clear = false
+
+		if clear and roll < 0.42:
+			var model := str(choices[int(roll * 1000.0) % choices.size()])
+			var at := Vector3(cursor, 0.0, edge) if along_x else Vector3(edge, 0.0, cursor)
+			_place_furniture(root, model, at, inward, facing)
+
+		cursor += 2.4
+		slot += 1
+
+
+func _place_furniture(root: Node, model: String, wall_point: Vector3, inward: Vector3, facing: float) -> void:
+	if not _furniture_scenes.has(model):
+		var path := LmPaths.rebase("res://assets/kenney/furniture/%s.glb" % model)
+		_furniture_scenes[model] = load(path) if ResourceLoader.exists(path) else null
+
+	var packed: PackedScene = _furniture_scenes[model]
+
+	if packed == null:
+		return
+
+	var piece := packed.instantiate() as Node3D
+	piece.scale = Vector3.ONE * FURNITURE_SCALE
+	var bounds := _bounds_of(piece)
+	var size := bounds.size * FURNITURE_SCALE
+
+	# Deeper than the band items never enter: left out rather than let it hide a key.
+	if minf(size.x, size.z) > 1.4:
+		piece.free()
+		return
+
+	var depth := size.z
+	var body := StaticBody3D.new()
+	body.name = "Furniture_%s" % model
+	var shape := BoxShape3D.new()
+	shape.size = Vector3(size.x, size.y, size.z)
+	var collider := CollisionShape3D.new()
+	collider.shape = shape
+	collider.position = Vector3(0, size.y * 0.5, 0)
+	body.add_child(collider)
+
+	if draws:
+		# The model's own origin is not its centre: put its bounds' centre on the body's.
+		var centre := bounds.get_center() * FURNITURE_SCALE
+		piece.position = Vector3(-centre.x, -bounds.position.y * FURNITURE_SCALE, -centre.z)
+		body.add_child(piece)
+	else:
+		piece.free()
+
+	root.add_child(body)
+	body.rotation.y = facing
+	body.position = wall_point + inward * (WALL + depth * 0.5 + 0.05)
+
+
+static func _bounds_of(node: Node3D) -> AABB:
+	var out := AABB()
+	var first := true
+
+	for child in node.find_children("*", "MeshInstance3D", true, false):
+		var mesh := child as MeshInstance3D
+
+		if mesh.mesh == null:
+			continue
+
+		var xf := Transform3D.IDENTITY
+		var walk: Node = mesh
+
+		while walk != null and walk != node:
+			xf = (walk as Node3D).transform * xf if walk is Node3D else xf
+			walk = walk.get_parent()
+
+		var box := xf * mesh.mesh.get_aabb()
+		out = box if first else out.merge(box)
+		first = false
+
+	return out if not first else AABB(Vector3(-0.2, 0, -0.2), Vector3(0.4, 0.4, 0.4))
 
 
 ## One wall, cut wherever a door sits on it. Inset by [constant WALL] so two rooms that share a

@@ -12,6 +12,8 @@ You arrive in the lobby, the one lit room in the house and the start of level 1.
 
 **The witches.** They walk the rooms in the dark. One that can see you fills the meter at the bottom of the screen, faster the nearer you are and much faster with your flashlight on; crouching and standing still help. Out of her sight it drains, after a moment. Full is caught: back to the start of the level, and the level's progress with you. There is one witch on level 1 and six by the end, faster and sharper-eyed each level. Their sight is drawn as a faint red fan on the floor.
 
+The rooms are furnished — bookcases, sofas, stoves, bathtubs — along their walls, and furniture hides you from a witch as well as a wall does.
+
 Finish all thirty-two and you get a crown everybody else can see.
 
 | Key | |
@@ -37,7 +39,7 @@ A level is one JSON file in `levels/`: rooms on a grid (a room is `w` by `d` cel
 
 ```bash
 godot --headless --path . --import
-godot --headless --path . res://examples/headless_run.tscn   # 8 sections, 27 checks
+godot --headless --path . res://examples/headless_run.tscn   # 8 sections, 30 checks
 godot --headless --path . res://examples/headless_net.tscn   # a server and a predicting client, 19 checks
 godot --headless --path . res://examples/dedicated.tscn      # a real server and the module, 14 checks
 tools/build_levels.py --check
@@ -47,6 +49,7 @@ tools/shot.sh --view=witch --level=8
 ## Credits
 
 - Characters: [Kenney](https://kenney.nl) Blocky Characters, CC0 1.0 (`assets/kenney/characters/`, licence beside them).
+- Furniture: [Kenney](https://kenney.nl) Furniture Kit, CC0 1.0 (`assets/kenney/furniture/`, licence beside them).
 - Everything else is drawn in code.
 
 MIT licence; see [LICENSE](LICENSE).
