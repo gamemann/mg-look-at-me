@@ -4,7 +4,7 @@ A dark house, thirty-two levels deep, with witches walking its rooms. Find what 
 
 Read the family-wide conventions in [`../../CLAUDE.md`](../../CLAUDE.md) first, and dot-player-controller's `CLAUDE.md` before touching movement. This file is only about what this game decides.
 
-**Built 2026-10-06, in one session, offline-first**, the way mg-dangerous-delivery was: the house, the 32 levels, the witches, the meter, per-player doors, the commands, winning, and a client you can play (`godot --path .`). **Not networked yet**; see the plan at the bottom. Remote set (`gamemann/mg-look-at-me`), nothing pushed.
+**Built 2026-10-06, in one session**: offline first (the house, the 32 levels, the witches, the meter, per-player doors, the commands, winning, a playable client), then networked the same day — a module, a bridge with predicted players, a mirroring client, chat and voice — and joined by a real client over a real socket in a delivered pack (dot-server-deploy's `examples/lookatme_client`, 17 checks). Not seen in a browser yet and not published. Remote set (`gamemann/mg-look-at-me`), nothing pushed.
 
 ## Layout
 
@@ -14,10 +14,16 @@ game/
   lm_level.gd    a level document built: rooms, walls cut for doors, doors (one StaticBody each), items, stations, lamps; witch_pose()
   lm_player.gd   a CharacterBody3D with dot-player-controller's first person, EXTERNAL drive; holds/opened/used/taken; the meter; the crown
   lm_game.gd     the house: every level side by side, join/leave, interact, exposure, caught, exits, /r and /l, winners
-  lm_client.gd   offline play: the dark, the flashlight, first/third person, witches drawn with a sight fan, the HUD
+  lm_client.gd   one player: offline it owns the house, connected it predicts its own player; the dark, the flashlight, first/third person, witches with a sight fan, the HUD, a / command line
+  lm_client_chat.gd  the chat box (Y) and push-to-talk voice (V), mg-dangerous-delivery's
+  lm_module.gd   the DotGameModule: predicted netcode, progress keyed by account uid, lm_status / lm_send / lm_winners, /commands in chat
+  lm_services.gd chat (all, admin, whisper) and voice for everybody across the house
+  lm_server.gd   what scenes/lm_server.tscn runs: the house, drawing nothing
+  net/           lm_events (JSON kinds), lm_event/lm_request, lm_net_link, lm_net_command (the move), lm_player_net (movement + level/flashlight/won, meter/caught to the owner), lm_net_bridge
   lm_figure.gd, lm_avatars.gd, lm_paths.gd   mg-deathrun's, renamed (Kenney blocky characters, the avatar schema, mount paths)
 levels/          lm_01 .. lm_32, written by tools/build_levels.py
-examples/        headless_run (8 sections, 27 checks)
+scenes/          lm_server.tscn
+examples/        headless_run (8 sections, 27 checks), headless_net (6, 19), dedicated (6, 14)
 tools/           build_levels.py; shot.sh/.gd (render: eyes, third, witch, above); probe.gd (a quick look)
 ```
 
@@ -37,6 +43,10 @@ Each tick, every witch on a player's level asks: in range (`sight`, × `flashlig
 
 `tools/build_levels.py` grows each level's rooms as a tree on a grid, from a start room (the lobby is 3×3 cells, the biggest room in the game), and locks every door into a new room behind a puzzle whose parts it puts in rooms already reachable: so every level is finishable by construction, and `solve()` plays the logic and refuses to write one that is not. Later levels have more rooms (4 + n/2, up to 20), put the parts in older rooms (further from their doors), and send more witches (1 + (n-1)/4, up to 6), faster (1.5 + 0.05n m/s), sharper (8 + 0.35n m, cone 70 + 1.2n°). `headless_run`'s solver then plays all 32 in the ENGINE — standing in front of each thing and pressing E through `LmGame.interact` — so a document the game reads differently from the builder fails there.
 
+## Decision 5: movement is predicted, and so are the doors
+
+Movement is mg-deathrun's: an `LmNetCommand` a tick into dot-net's input buffer, the owner predicting with the same controller the server simulates. Everything else is mg-dangerous-delivery's: a few JSON events and requests. **The doors are why this game's prediction is its own.** A door open only for one player must be open in that player's PREDICTING controller too, or the client predicts a wall the server walks them through and every snapshot drags them back; so PROGRESS (the owner's holds, opened, used, taken) goes to the owner alone and is applied to the client's own controller before its next predicted tick. `headless_net` walks a client through a door open only for it and ends 5 mm from the server. The levels go one per LEVEL message after the HELLO: all 32 are 210 KB, past a WebSocket's 64 KiB outbound buffer, and a browser client sent them in one would never learn the house it was standing in. Witches are never sent (Decision 2); `headless_net` checks both ends pose all of them alike from the clock. A chat line beginning with a command the house knows (`/r`, `/l3`) is answered by the house (`LmModule._on_say_requested`), the rest goes to the chat router.
+
 ## What running and rendering found
 
 - **dot-player-controller needs dot_player and dot_net linked**; without them `DotFpsController` does not parse and every script that names it fails with it.
@@ -50,6 +60,8 @@ godot --headless --path . --import
 find . -name '*.gd' -not -path './.godot/*' -not -path './addons/*' | while read f; do
     godot --headless --path . --check-only --script "res://${f#./}"; done
 godot --headless --path . res://examples/headless_run.tscn   # 8 sections, 27 checks
+godot --headless --path . res://examples/headless_net.tscn   # 6 sections, 19 checks: predicted, through a door open for one
+godot --headless --path . res://examples/dedicated.tscn      # 6 sections, 14 checks
 tools/build_levels.py --check
 tools/shot.sh; tools/shot.sh --view=witch --level=8; tools/shot.sh --view=third
 ```
@@ -58,7 +70,7 @@ tools/shot.sh; tools/shot.sh --view=witch --level=8; tools/shot.sh --view=third
 
 In the order they are worth doing.
 
-1. **Networking**, on mg-deathrun's skeleton for the people (DotFpsController is predicted there: `DrPlayer`, `DrPlayerNet`, the bridge's input path) and mg-dangerous-delivery's for everything else (JSON events, HELLO with the documents). What travels: HELLO (the level documents, the clock), each player's movement (predicted, as deathrun's), and per-player state to its OWNER only (level, holds, opened, used, taken, meter, caught) — a door one player opened must be excluded on that player's client too, so its prediction walks through it. Witches are never sent (Decision 2). A `DotGameModule`, `DotGameServices` for chat and voice (the brief: a lobby to socialise in), a server scene, a dedicated suite, and dot-server-deploy's real-client check.
+1. **A browser look**, then publishing: the pack is `tmc/lookatme` (dot-server-deploy `content/lookatme/`), and the release order is the family's.
 2. **dot-map and dot-vote**: the brief asks that the house be a map an owner can replace and vote on. A map is a directory of level documents; dot-vote's list source over the directories, as mg-deathrun's course vote does over courses.
 3. **TMC avatars** through dot-platform (the figure and the avatar schema are mg-deathrun's and already translate the site's), and an achievement for winning through dot-achievements (the crown and the winners file are here).
 4. **Sound**: footsteps, her breathing as she nears, the meter's heartbeat. The meter is the whole game and it is silent.

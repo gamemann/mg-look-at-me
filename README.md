@@ -25,6 +25,8 @@ Finish all thirty-two and you get a crown everybody else can see.
 
 ## Running a server
 
+The game is a dot-server pack: `scenes/lm_server.tscn` is the house, `game/lm_module.gd` the module (see `game.yml`). Console: `lm_status`, `lm_send <name> <level>`, `lm_winners`. Players type `/r` and `/l3` in chat or on the `/` line.
+
 Every rule is a setting, layered like everything in the family: defaults < `user://cfg/lookatme.json` < `LM_*` environment < `--lm-*` command line. The meter (`exposure_rate`, `decay_rate`, `decay_delay`), what changes it (`flashlight_exposure`, `flashlight_sight`, `crouch_exposure`, `still_exposure`), what a catch costs (`caught_penalty`: keep what you hold, or lose the level), the witches (`witch_speed_scale`, `witch_sight_scale`, `witch_cone_scale`, `witch_head_sweep`), the dark (`darkness_ambient`, `flashlight_range`, `flashlight_angle`), `shared_progress` (one player's key opens the door for everybody on the level; off by default) and `allow_third_person`.
 
 ## Writing a level
@@ -36,6 +38,8 @@ A level is one JSON file in `levels/`: rooms on a grid (a room is `w` by `d` cel
 ```bash
 godot --headless --path . --import
 godot --headless --path . res://examples/headless_run.tscn   # 8 sections, 27 checks
+godot --headless --path . res://examples/headless_net.tscn   # a server and a predicting client, 19 checks
+godot --headless --path . res://examples/dedicated.tscn      # a real server and the module, 14 checks
 tools/build_levels.py --check
 tools/shot.sh --view=witch --level=8
 ```
