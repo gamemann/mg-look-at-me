@@ -1,0 +1,173 @@
+{
+	"format": 1,
+	"kind": "level",
+	"id": "lm_01",
+	"number": 1,
+	"name": "The Front Door",
+	"author": "mg-look-at-me",
+	"blurb": "Level 1 of 32.",
+	"cell": 8.0,
+	"height": 3.2,
+	"rooms": [
+		{
+			"id": "r0",
+			"name": "The Lobby",
+			"x": 0,
+			"z": 0,
+			"w": 3,
+			"d": 3,
+			"spawn": true,
+			"light": 0.8
+		},
+		{
+			"id": "r1",
+			"name": "Workshop",
+			"x": 1,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r2",
+			"name": "Servants' Hall",
+			"x": 2,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r3",
+			"name": "Larder",
+			"x": -1,
+			"z": 3,
+			"w": 2,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		}
+	],
+	"doors": [
+		{
+			"id": "d0",
+			"a": "r0",
+			"b": "r1",
+			"lock": "",
+			"label": "Door",
+			"colour": "brown"
+		},
+		{
+			"id": "d1",
+			"a": "r1",
+			"b": "r2",
+			"lock": "",
+			"label": "Door",
+			"colour": "brown"
+		},
+		{
+			"id": "d2",
+			"a": "r0",
+			"b": "r3",
+			"lock": "key_red_2",
+			"label": "Red door",
+			"colour": "red"
+		},
+		{
+			"id": "exit",
+			"a": "r3",
+			"b": "",
+			"side": "e",
+			"lock": "key_gold",
+			"label": "The way out",
+			"colour": "gold",
+			"exit": true
+		}
+	],
+	"items": [
+		{
+			"id": "key_red_2",
+			"name": "Red key",
+			"kind": "key",
+			"room": "r2",
+			"at": [
+				0.41,
+				0.72
+			],
+			"colour": "red"
+		},
+		{
+			"id": "key_gold",
+			"name": "Gold key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.57,
+				0.34
+			],
+			"colour": "gold"
+		}
+	],
+	"stations": [],
+	"steps": [
+		{
+			"text": "Find the red key",
+			"when": {
+				"holds": "key_red_2"
+			}
+		},
+		{
+			"text": "Open the red door",
+			"when": {
+				"opened": "d2"
+			}
+		},
+		{
+			"text": "Find the gold key",
+			"when": {
+				"holds": "key_gold"
+			}
+		},
+		{
+			"text": "Get out",
+			"when": {
+				"opened": "exit"
+			}
+		}
+	],
+	"witches": [
+		{
+			"path": [
+				[
+					"at",
+					"r3",
+					0.2,
+					0.2
+				],
+				[
+					"at",
+					"r3",
+					0.8,
+					0.2
+				],
+				[
+					"at",
+					"r3",
+					0.8,
+					0.8
+				],
+				[
+					"at",
+					"r3",
+					0.2,
+					0.8
+				]
+			],
+			"speed": 1.55,
+			"sight": 8.35,
+			"cone": 71.2
+		}
+	]
+}

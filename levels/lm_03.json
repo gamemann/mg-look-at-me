@@ -1,0 +1,250 @@
+{
+	"format": 1,
+	"kind": "level",
+	"id": "lm_03",
+	"number": 3,
+	"name": "Bath Time",
+	"author": "mg-look-at-me",
+	"blurb": "Level 3 of 32.",
+	"cell": 8.0,
+	"height": 3.2,
+	"rooms": [
+		{
+			"id": "r0",
+			"name": "Landing",
+			"x": 0,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": true,
+			"light": 0.45
+		},
+		{
+			"id": "r1",
+			"name": "Pantry",
+			"x": 1,
+			"z": 1,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r2",
+			"name": "Larder",
+			"x": 2,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r3",
+			"name": "Servants' Hall",
+			"x": 3,
+			"z": 1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r4",
+			"name": "Study",
+			"x": 3,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		}
+	],
+	"doors": [
+		{
+			"id": "d0",
+			"a": "r0",
+			"b": "r1",
+			"lock": "key_red_0",
+			"label": "Red door",
+			"colour": "red"
+		},
+		{
+			"id": "d1",
+			"a": "r1",
+			"b": "r2",
+			"lock": "key_white_1",
+			"label": "White door",
+			"colour": "white"
+		},
+		{
+			"id": "d2",
+			"a": "r1",
+			"b": "r3",
+			"lock": "@lever_2",
+			"label": "Gate",
+			"colour": "iron"
+		},
+		{
+			"id": "d3",
+			"a": "r2",
+			"b": "r4",
+			"lock": "key_blue_3",
+			"label": "Blue door",
+			"colour": "blue"
+		},
+		{
+			"id": "exit",
+			"a": "r4",
+			"b": "",
+			"side": "n",
+			"lock": "key_gold",
+			"label": "The way out",
+			"colour": "gold",
+			"exit": true
+		}
+	],
+	"items": [
+		{
+			"id": "key_red_0",
+			"name": "Red key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.61,
+				0.31
+			],
+			"colour": "red"
+		},
+		{
+			"id": "key_white_1",
+			"name": "White key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.47,
+				0.46
+			],
+			"colour": "white"
+		},
+		{
+			"id": "key_blue_3",
+			"name": "Blue key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.63,
+				0.51
+			],
+			"colour": "blue"
+		},
+		{
+			"id": "key_gold",
+			"name": "Gold key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.23,
+				0.8
+			],
+			"colour": "gold"
+		}
+	],
+	"stations": [
+		{
+			"id": "lever_2",
+			"name": "Lever",
+			"kind": "lever",
+			"room": "r2",
+			"at": [
+				0.62,
+				0.44
+			],
+			"needs": "",
+			"gives": "",
+			"opens": "d2",
+			"verb": "Pull the lever"
+		}
+	],
+	"steps": [
+		{
+			"text": "Find the red key",
+			"when": {
+				"holds": "key_red_0"
+			}
+		},
+		{
+			"text": "Open the red door",
+			"when": {
+				"opened": "d0"
+			}
+		},
+		{
+			"text": "Find the white key",
+			"when": {
+				"holds": "key_white_1"
+			}
+		},
+		{
+			"text": "Open the white door",
+			"when": {
+				"opened": "d1"
+			}
+		},
+		{
+			"text": "Find the lever that opens the gate",
+			"when": {
+				"used": "lever_2"
+			}
+		},
+		{
+			"text": "Find the blue key",
+			"when": {
+				"holds": "key_blue_3"
+			}
+		},
+		{
+			"text": "Open the blue door",
+			"when": {
+				"opened": "d3"
+			}
+		},
+		{
+			"text": "Find the gold key",
+			"when": {
+				"holds": "key_gold"
+			}
+		},
+		{
+			"text": "Get out",
+			"when": {
+				"opened": "exit"
+			}
+		}
+	],
+	"witches": [
+		{
+			"path": [
+				[
+					"room",
+					"r2"
+				],
+				[
+					"door",
+					"d3"
+				],
+				[
+					"room",
+					"r4"
+				],
+				[
+					"door",
+					"d3"
+				]
+			],
+			"speed": 1.65,
+			"sight": 9.05,
+			"cone": 73.6
+		}
+	]
+}

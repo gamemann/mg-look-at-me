@@ -1,0 +1,337 @@
+{
+	"format": 1,
+	"kind": "level",
+	"id": "lm_05",
+	"number": 5,
+	"name": "Lessons",
+	"author": "mg-look-at-me",
+	"blurb": "Level 5 of 32.",
+	"cell": 8.0,
+	"height": 3.2,
+	"rooms": [
+		{
+			"id": "r0",
+			"name": "Landing",
+			"x": 0,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": true,
+			"light": 0.45
+		},
+		{
+			"id": "r1",
+			"name": "Conservatory",
+			"x": -1,
+			"z": 0,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r2",
+			"name": "Workshop",
+			"x": -1,
+			"z": -1,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r3",
+			"name": "Laundry",
+			"x": -3,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r4",
+			"name": "Bathroom",
+			"x": -2,
+			"z": -3,
+			"w": 2,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r5",
+			"name": "Parlour",
+			"x": -2,
+			"z": 1,
+			"w": 2,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		}
+	],
+	"doors": [
+		{
+			"id": "d0",
+			"a": "r0",
+			"b": "r1",
+			"lock": "crowbar_0",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d1",
+			"a": "r1",
+			"b": "r2",
+			"lock": "@lever_1",
+			"label": "Gate",
+			"colour": "iron"
+		},
+		{
+			"id": "d2",
+			"a": "r1",
+			"b": "r3",
+			"lock": "crowbar_2",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d3",
+			"a": "r2",
+			"b": "r4",
+			"lock": "",
+			"label": "Door",
+			"colour": "brown"
+		},
+		{
+			"id": "d4",
+			"a": "r3",
+			"b": "r5",
+			"lock": "key_white_4",
+			"label": "White door",
+			"colour": "white"
+		},
+		{
+			"id": "exit",
+			"a": "r5",
+			"b": "",
+			"side": "e",
+			"lock": "key_gold",
+			"label": "The way out",
+			"colour": "gold",
+			"exit": true
+		}
+	],
+	"items": [
+		{
+			"id": "crowbar_0",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r0",
+			"at": [
+				0.34,
+				0.48
+			]
+		},
+		{
+			"id": "crowbar_2",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r1",
+			"at": [
+				0.49,
+				0.78
+			]
+		},
+		{
+			"id": "key_white_4",
+			"name": "White key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.76,
+				0.41
+			],
+			"colour": "white"
+		},
+		{
+			"id": "key_gold",
+			"name": "Gold key",
+			"kind": "key",
+			"room": "r1",
+			"at": [
+				0.77,
+				0.51
+			],
+			"colour": "gold"
+		}
+	],
+	"stations": [
+		{
+			"id": "lever_1",
+			"name": "Lever",
+			"kind": "lever",
+			"room": "r0",
+			"at": [
+				0.33,
+				0.38
+			],
+			"needs": "",
+			"gives": "",
+			"opens": "d1",
+			"verb": "Pull the lever"
+		}
+	],
+	"steps": [
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_0"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d0"
+			}
+		},
+		{
+			"text": "Find the lever that opens the gate",
+			"when": {
+				"used": "lever_1"
+			}
+		},
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_2"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d2"
+			}
+		},
+		{
+			"text": "Find the white key",
+			"when": {
+				"holds": "key_white_4"
+			}
+		},
+		{
+			"text": "Open the white door",
+			"when": {
+				"opened": "d4"
+			}
+		},
+		{
+			"text": "Find the gold key",
+			"when": {
+				"holds": "key_gold"
+			}
+		},
+		{
+			"text": "Get out",
+			"when": {
+				"opened": "exit"
+			}
+		}
+	],
+	"witches": [
+		{
+			"path": [
+				[
+					"room",
+					"r4"
+				],
+				[
+					"door",
+					"d3"
+				],
+				[
+					"room",
+					"r2"
+				],
+				[
+					"door",
+					"d1"
+				],
+				[
+					"room",
+					"r1"
+				],
+				[
+					"door",
+					"d2"
+				],
+				[
+					"room",
+					"r3"
+				],
+				[
+					"door",
+					"d2"
+				],
+				[
+					"room",
+					"r1"
+				],
+				[
+					"door",
+					"d1"
+				],
+				[
+					"room",
+					"r2"
+				],
+				[
+					"door",
+					"d3"
+				]
+			],
+			"speed": 1.75,
+			"sight": 9.75,
+			"cone": 76.0
+		},
+		{
+			"path": [
+				[
+					"room",
+					"r1"
+				],
+				[
+					"door",
+					"d2"
+				],
+				[
+					"room",
+					"r3"
+				],
+				[
+					"door",
+					"d4"
+				],
+				[
+					"room",
+					"r5"
+				],
+				[
+					"door",
+					"d4"
+				],
+				[
+					"room",
+					"r3"
+				],
+				[
+					"door",
+					"d2"
+				]
+			],
+			"speed": 1.85,
+			"sight": 9.75,
+			"cone": 76.0
+		}
+	]
+}

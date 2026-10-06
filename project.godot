@@ -1,0 +1,25 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="mg-look-at-me"
+config/description="A dark house, thirty-two levels deep, with witches walking its rooms. Find what opens the next door before one of them looks at you."
+config/features=PackedStringArray("4.7")
+run/main_scene="res://game/lm.tscn"
+
+[physics]
+
+common/physics_ticks_per_second=60
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

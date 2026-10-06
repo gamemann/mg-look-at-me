@@ -1,0 +1,363 @@
+{
+	"format": 1,
+	"kind": "level",
+	"id": "lm_06",
+	"number": 6,
+	"name": "Lights Out",
+	"author": "mg-look-at-me",
+	"blurb": "Level 6 of 32.",
+	"cell": 8.0,
+	"height": 3.2,
+	"rooms": [
+		{
+			"id": "r0",
+			"name": "Landing",
+			"x": 0,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": true,
+			"light": 0.45
+		},
+		{
+			"id": "r1",
+			"name": "Pantry",
+			"x": 2,
+			"z": 0,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r2",
+			"name": "Boiler Room",
+			"x": -1,
+			"z": 0,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r3",
+			"name": "Bedroom",
+			"x": 2,
+			"z": 1,
+			"w": 2,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r4",
+			"name": "Library",
+			"x": 2,
+			"z": 3,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r5",
+			"name": "Servants' Hall",
+			"x": 2,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r6",
+			"name": "Workshop",
+			"x": -1,
+			"z": -2,
+			"w": 1,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		}
+	],
+	"doors": [
+		{
+			"id": "d0",
+			"a": "r0",
+			"b": "r1",
+			"lock": "crowbar_0",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d1",
+			"a": "r0",
+			"b": "r2",
+			"lock": "key_purple_1",
+			"label": "Purple door",
+			"colour": "purple"
+		},
+		{
+			"id": "d2",
+			"a": "r1",
+			"b": "r3",
+			"lock": "crowbar_2",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d3",
+			"a": "r3",
+			"b": "r4",
+			"lock": "crowbar_3",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d4",
+			"a": "r1",
+			"b": "r5",
+			"lock": "key_green_4",
+			"label": "Green door",
+			"colour": "green"
+		},
+		{
+			"id": "d5",
+			"a": "r2",
+			"b": "r6",
+			"lock": "",
+			"label": "Door",
+			"colour": "brown"
+		},
+		{
+			"id": "exit",
+			"a": "r6",
+			"b": "",
+			"side": "n",
+			"lock": "key_gold",
+			"label": "The way out",
+			"colour": "gold",
+			"exit": true
+		}
+	],
+	"items": [
+		{
+			"id": "crowbar_0",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r0",
+			"at": [
+				0.3,
+				0.43
+			]
+		},
+		{
+			"id": "key_purple_1",
+			"name": "Purple key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.57,
+				0.26
+			],
+			"colour": "purple"
+		},
+		{
+			"id": "crowbar_2",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r0",
+			"at": [
+				0.33,
+				0.78
+			]
+		},
+		{
+			"id": "crowbar_3",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r1",
+			"at": [
+				0.38,
+				0.3
+			]
+		},
+		{
+			"id": "key_green_4",
+			"name": "Green key",
+			"kind": "key",
+			"room": "r1",
+			"at": [
+				0.44,
+				0.66
+			],
+			"colour": "green"
+		},
+		{
+			"id": "key_gold",
+			"name": "Gold key",
+			"kind": "key",
+			"room": "r6",
+			"at": [
+				0.2,
+				0.79
+			],
+			"colour": "gold"
+		}
+	],
+	"stations": [],
+	"steps": [
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_0"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d0"
+			}
+		},
+		{
+			"text": "Find the purple key",
+			"when": {
+				"holds": "key_purple_1"
+			}
+		},
+		{
+			"text": "Open the purple door",
+			"when": {
+				"opened": "d1"
+			}
+		},
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_2"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d2"
+			}
+		},
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_3"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d3"
+			}
+		},
+		{
+			"text": "Find the green key",
+			"when": {
+				"holds": "key_green_4"
+			}
+		},
+		{
+			"text": "Open the green door",
+			"when": {
+				"opened": "d4"
+			}
+		},
+		{
+			"text": "Find the gold key",
+			"when": {
+				"holds": "key_gold"
+			}
+		},
+		{
+			"text": "Get out",
+			"when": {
+				"opened": "exit"
+			}
+		}
+	],
+	"witches": [
+		{
+			"path": [
+				[
+					"room",
+					"r4"
+				],
+				[
+					"door",
+					"d3"
+				],
+				[
+					"room",
+					"r3"
+				],
+				[
+					"door",
+					"d2"
+				],
+				[
+					"room",
+					"r1"
+				],
+				[
+					"door",
+					"d4"
+				],
+				[
+					"room",
+					"r5"
+				],
+				[
+					"door",
+					"d4"
+				],
+				[
+					"room",
+					"r1"
+				],
+				[
+					"door",
+					"d2"
+				],
+				[
+					"room",
+					"r3"
+				],
+				[
+					"door",
+					"d3"
+				]
+			],
+			"speed": 1.8,
+			"sight": 10.1,
+			"cone": 77.2
+		},
+		{
+			"path": [
+				[
+					"room",
+					"r1"
+				],
+				[
+					"door",
+					"d4"
+				],
+				[
+					"room",
+					"r5"
+				],
+				[
+					"door",
+					"d4"
+				]
+			],
+			"speed": 1.9,
+			"sight": 10.1,
+			"cone": 77.2
+		}
+	]
+}

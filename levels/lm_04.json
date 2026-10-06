@@ -1,0 +1,290 @@
+{
+	"format": 1,
+	"kind": "level",
+	"id": "lm_04",
+	"number": 4,
+	"name": "The Pantry",
+	"author": "mg-look-at-me",
+	"blurb": "Level 4 of 32.",
+	"cell": 8.0,
+	"height": 3.2,
+	"rooms": [
+		{
+			"id": "r0",
+			"name": "Landing",
+			"x": 0,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": true,
+			"light": 0.45
+		},
+		{
+			"id": "r1",
+			"name": "Larder",
+			"x": 2,
+			"z": -1,
+			"w": 1,
+			"d": 2,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r2",
+			"name": "Cellar",
+			"x": -1,
+			"z": -1,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r3",
+			"name": "Wine Cellar",
+			"x": -1,
+			"z": 0,
+			"w": 1,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r4",
+			"name": "Parlour",
+			"x": 1,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r5",
+			"name": "Hall",
+			"x": -2,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		}
+	],
+	"doors": [
+		{
+			"id": "d0",
+			"a": "r0",
+			"b": "r1",
+			"lock": "crowbar_0",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d1",
+			"a": "r0",
+			"b": "r2",
+			"lock": "crowbar_1",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d2",
+			"a": "r0",
+			"b": "r3",
+			"lock": "key_black_2",
+			"label": "Black door",
+			"colour": "black"
+		},
+		{
+			"id": "d3",
+			"a": "r1",
+			"b": "r4",
+			"lock": "key_green_3",
+			"label": "Green door",
+			"colour": "green"
+		},
+		{
+			"id": "d4",
+			"a": "r2",
+			"b": "r5",
+			"lock": "crowbar_4",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "exit",
+			"a": "r5",
+			"b": "",
+			"side": "n",
+			"lock": "key_gold",
+			"label": "The way out",
+			"colour": "gold",
+			"exit": true
+		}
+	],
+	"items": [
+		{
+			"id": "crowbar_0",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r0",
+			"at": [
+				0.46,
+				0.33
+			]
+		},
+		{
+			"id": "crowbar_1",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r0",
+			"at": [
+				0.78,
+				0.49
+			]
+		},
+		{
+			"id": "key_black_2",
+			"name": "Black key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.46,
+				0.66
+			],
+			"colour": "black"
+		},
+		{
+			"id": "key_green_3",
+			"name": "Green key",
+			"kind": "key",
+			"room": "r1",
+			"at": [
+				0.36,
+				0.73
+			],
+			"colour": "green"
+		},
+		{
+			"id": "crowbar_4",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r4",
+			"at": [
+				0.7,
+				0.5
+			]
+		},
+		{
+			"id": "key_gold",
+			"name": "Gold key",
+			"kind": "key",
+			"room": "r2",
+			"at": [
+				0.65,
+				0.63
+			],
+			"colour": "gold"
+		}
+	],
+	"stations": [],
+	"steps": [
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_0"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d0"
+			}
+		},
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_1"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d1"
+			}
+		},
+		{
+			"text": "Find the black key",
+			"when": {
+				"holds": "key_black_2"
+			}
+		},
+		{
+			"text": "Open the black door",
+			"when": {
+				"opened": "d2"
+			}
+		},
+		{
+			"text": "Find the green key",
+			"when": {
+				"holds": "key_green_3"
+			}
+		},
+		{
+			"text": "Open the green door",
+			"when": {
+				"opened": "d3"
+			}
+		},
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_4"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d4"
+			}
+		},
+		{
+			"text": "Find the gold key",
+			"when": {
+				"holds": "key_gold"
+			}
+		},
+		{
+			"text": "Get out",
+			"when": {
+				"opened": "exit"
+			}
+		}
+	],
+	"witches": [
+		{
+			"path": [
+				[
+					"room",
+					"r4"
+				],
+				[
+					"door",
+					"d3"
+				],
+				[
+					"room",
+					"r1"
+				],
+				[
+					"door",
+					"d3"
+				]
+			],
+			"speed": 1.7,
+			"sight": 9.4,
+			"cone": 74.8
+		}
+	]
+}

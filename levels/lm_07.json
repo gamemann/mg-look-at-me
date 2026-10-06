@@ -1,0 +1,352 @@
+{
+	"format": 1,
+	"kind": "level",
+	"id": "lm_07",
+	"number": 7,
+	"name": "The Nursery",
+	"author": "mg-look-at-me",
+	"blurb": "Level 7 of 32.",
+	"cell": 8.0,
+	"height": 3.2,
+	"rooms": [
+		{
+			"id": "r0",
+			"name": "Landing",
+			"x": 0,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": true,
+			"light": 0.45
+		},
+		{
+			"id": "r1",
+			"name": "Bathroom",
+			"x": 2,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r2",
+			"name": "Gallery",
+			"x": 2,
+			"z": 1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r3",
+			"name": "Attic",
+			"x": -1,
+			"z": 0,
+			"w": 1,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r4",
+			"name": "Sewing Room",
+			"x": 3,
+			"z": 1,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r5",
+			"name": "Dining Room",
+			"x": -3,
+			"z": -1,
+			"w": 2,
+			"d": 2,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r6",
+			"name": "Pantry",
+			"x": -5,
+			"z": -1,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		}
+	],
+	"doors": [
+		{
+			"id": "d0",
+			"a": "r0",
+			"b": "r1",
+			"lock": "crowbar_0",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d1",
+			"a": "r1",
+			"b": "r2",
+			"lock": "key_yellow_1",
+			"label": "Yellow door",
+			"colour": "yellow"
+		},
+		{
+			"id": "d2",
+			"a": "r0",
+			"b": "r3",
+			"lock": "@lever_2",
+			"label": "Gate",
+			"colour": "iron"
+		},
+		{
+			"id": "d3",
+			"a": "r2",
+			"b": "r4",
+			"lock": "crowbar_3",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d4",
+			"a": "r3",
+			"b": "r5",
+			"lock": "key_purple_4",
+			"label": "Purple door",
+			"colour": "purple"
+		},
+		{
+			"id": "d5",
+			"a": "r5",
+			"b": "r6",
+			"lock": "crowbar_5",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "exit",
+			"a": "r6",
+			"b": "",
+			"side": "n",
+			"lock": "key_gold",
+			"label": "The way out",
+			"colour": "gold",
+			"exit": true
+		}
+	],
+	"items": [
+		{
+			"id": "crowbar_0",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r0",
+			"at": [
+				0.78,
+				0.65
+			]
+		},
+		{
+			"id": "key_yellow_1",
+			"name": "Yellow key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.37,
+				0.67
+			],
+			"colour": "yellow"
+		},
+		{
+			"id": "crowbar_3",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r1",
+			"at": [
+				0.23,
+				0.44
+			]
+		},
+		{
+			"id": "key_purple_4",
+			"name": "Purple key",
+			"kind": "key",
+			"room": "r1",
+			"at": [
+				0.65,
+				0.56
+			],
+			"colour": "purple"
+		},
+		{
+			"id": "crowbar_5",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r1",
+			"at": [
+				0.74,
+				0.53
+			]
+		},
+		{
+			"id": "key_gold",
+			"name": "Gold key",
+			"kind": "key",
+			"room": "r0",
+			"at": [
+				0.59,
+				0.55
+			],
+			"colour": "gold"
+		}
+	],
+	"stations": [
+		{
+			"id": "lever_2",
+			"name": "Lever",
+			"kind": "lever",
+			"room": "r0",
+			"at": [
+				0.62,
+				0.63
+			],
+			"needs": "",
+			"gives": "",
+			"opens": "d2",
+			"verb": "Pull the lever"
+		}
+	],
+	"steps": [
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_0"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d0"
+			}
+		},
+		{
+			"text": "Find the yellow key",
+			"when": {
+				"holds": "key_yellow_1"
+			}
+		},
+		{
+			"text": "Open the yellow door",
+			"when": {
+				"opened": "d1"
+			}
+		},
+		{
+			"text": "Find the lever that opens the gate",
+			"when": {
+				"used": "lever_2"
+			}
+		},
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_3"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d3"
+			}
+		},
+		{
+			"text": "Find the purple key",
+			"when": {
+				"holds": "key_purple_4"
+			}
+		},
+		{
+			"text": "Open the purple door",
+			"when": {
+				"opened": "d4"
+			}
+		},
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_5"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d5"
+			}
+		},
+		{
+			"text": "Find the gold key",
+			"when": {
+				"holds": "key_gold"
+			}
+		},
+		{
+			"text": "Get out",
+			"when": {
+				"opened": "exit"
+			}
+		}
+	],
+	"witches": [
+		{
+			"path": [
+				[
+					"room",
+					"r5"
+				],
+				[
+					"door",
+					"d4"
+				],
+				[
+					"room",
+					"r3"
+				],
+				[
+					"door",
+					"d4"
+				]
+			],
+			"speed": 1.85,
+			"sight": 10.45,
+			"cone": 78.4
+		},
+		{
+			"path": [
+				[
+					"room",
+					"r5"
+				],
+				[
+					"door",
+					"d5"
+				],
+				[
+					"room",
+					"r6"
+				],
+				[
+					"door",
+					"d5"
+				]
+			],
+			"speed": 1.95,
+			"sight": 10.45,
+			"cone": 78.4
+		}
+	]
+}

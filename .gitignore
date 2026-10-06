@@ -1,0 +1,25 @@
+# Godot 4
+.godot/
+/android/
+
+# Every dot-* addon is a separate repository. For local development, symlink them.
+# THIS LIST IS ALSO THE DEPENDENCY MANIFEST: dot-bootstrap derives what to link from it.
+/addons/dot_core
+/addons/dot_net
+/addons/dot_player
+/addons/dot_player_controller
+/addons/dot_user_avatar
+
+# Exports
+build/
+export_presets.cfg
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Screenshots are evidence for a review, not assets.
+/screenshots/
+
+# Editors
+.vscode/

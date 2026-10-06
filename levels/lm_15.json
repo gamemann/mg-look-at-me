@@ -1,0 +1,618 @@
+{
+	"format": 1,
+	"kind": "level",
+	"id": "lm_15",
+	"number": 15,
+	"name": "Glasshouse",
+	"author": "mg-look-at-me",
+	"blurb": "Level 15 of 32.",
+	"cell": 8.0,
+	"height": 3.2,
+	"rooms": [
+		{
+			"id": "r0",
+			"name": "Landing",
+			"x": 0,
+			"z": 0,
+			"w": 2,
+			"d": 1,
+			"spawn": true,
+			"light": 0.45
+		},
+		{
+			"id": "r1",
+			"name": "Conservatory",
+			"x": -2,
+			"z": -1,
+			"w": 2,
+			"d": 2,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r2",
+			"name": "Bedroom",
+			"x": -2,
+			"z": -2,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r3",
+			"name": "Laundry",
+			"x": -3,
+			"z": -2,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r4",
+			"name": "Bathroom",
+			"x": -3,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r5",
+			"name": "Study",
+			"x": 0,
+			"z": -1,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r6",
+			"name": "Larder",
+			"x": 0,
+			"z": -3,
+			"w": 1,
+			"d": 2,
+			"spawn": false,
+			"light": 0.35
+		},
+		{
+			"id": "r7",
+			"name": "Cellar",
+			"x": -1,
+			"z": 1,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r8",
+			"name": "Nursery",
+			"x": -1,
+			"z": 2,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r9",
+			"name": "Kitchen",
+			"x": -3,
+			"z": -3,
+			"w": 1,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		},
+		{
+			"id": "r10",
+			"name": "Dining Room",
+			"x": -3,
+			"z": 2,
+			"w": 2,
+			"d": 1,
+			"spawn": false,
+			"light": 0.0
+		}
+	],
+	"doors": [
+		{
+			"id": "d0",
+			"a": "r0",
+			"b": "r1",
+			"lock": "key_vent_0",
+			"label": "Locked door",
+			"colour": "brown"
+		},
+		{
+			"id": "d1",
+			"a": "r1",
+			"b": "r2",
+			"lock": "@lever_1",
+			"label": "Gate",
+			"colour": "iron"
+		},
+		{
+			"id": "d2",
+			"a": "r2",
+			"b": "r3",
+			"lock": "@fusebox_2",
+			"label": "Electric gate",
+			"colour": "steel"
+		},
+		{
+			"id": "d3",
+			"a": "r1",
+			"b": "r4",
+			"lock": "@fire_3",
+			"label": "Door behind the fire",
+			"colour": "brown"
+		},
+		{
+			"id": "d4",
+			"a": "r1",
+			"b": "r5",
+			"lock": "@lever_4",
+			"label": "Gate",
+			"colour": "iron"
+		},
+		{
+			"id": "d5",
+			"a": "r5",
+			"b": "r6",
+			"lock": "crowbar_5",
+			"label": "Boarded door",
+			"colour": "wood"
+		},
+		{
+			"id": "d6",
+			"a": "r0",
+			"b": "r7",
+			"lock": "",
+			"label": "Door",
+			"colour": "brown"
+		},
+		{
+			"id": "d7",
+			"a": "r7",
+			"b": "r8",
+			"lock": "key_red_7",
+			"label": "Red door",
+			"colour": "red"
+		},
+		{
+			"id": "d8",
+			"a": "r3",
+			"b": "r9",
+			"lock": "key_orange_8",
+			"label": "Orange door",
+			"colour": "orange"
+		},
+		{
+			"id": "d9",
+			"a": "r8",
+			"b": "r10",
+			"lock": "key_yellow_9",
+			"label": "Yellow door",
+			"colour": "yellow"
+		},
+		{
+			"id": "exit",
+			"a": "r10",
+			"b": "",
+			"side": "n",
+			"lock": "key_gold",
+			"label": "The way out",
+			"colour": "gold",
+			"exit": true
+		}
+	],
+	"items": [
+		{
+			"id": "screwdriver_0",
+			"name": "Screwdriver",
+			"kind": "screwdriver",
+			"room": "r0",
+			"at": [
+				0.64,
+				0.78
+			]
+		},
+		{
+			"id": "fuse_2",
+			"name": "Fuse",
+			"kind": "fuse",
+			"room": "r0",
+			"at": [
+				0.22,
+				0.6
+			]
+		},
+		{
+			"id": "bucket_3",
+			"name": "Bucket",
+			"kind": "bucket",
+			"room": "r1",
+			"at": [
+				0.3,
+				0.63
+			]
+		},
+		{
+			"id": "crowbar_5",
+			"name": "Crowbar",
+			"kind": "crowbar",
+			"room": "r0",
+			"at": [
+				0.66,
+				0.79
+			]
+		},
+		{
+			"id": "key_red_7",
+			"name": "Red key",
+			"kind": "key",
+			"room": "r3",
+			"at": [
+				0.41,
+				0.22
+			],
+			"colour": "red"
+		},
+		{
+			"id": "key_orange_8",
+			"name": "Orange key",
+			"kind": "key",
+			"room": "r4",
+			"at": [
+				0.41,
+				0.69
+			],
+			"colour": "orange"
+		},
+		{
+			"id": "key_yellow_9",
+			"name": "Yellow key",
+			"kind": "key",
+			"room": "r3",
+			"at": [
+				0.59,
+				0.71
+			],
+			"colour": "yellow"
+		},
+		{
+			"id": "key_gold",
+			"name": "Gold key",
+			"kind": "key",
+			"room": "r4",
+			"at": [
+				0.71,
+				0.6
+			],
+			"colour": "gold"
+		}
+	],
+	"stations": [
+		{
+			"id": "vent_0",
+			"name": "Vent",
+			"kind": "vent",
+			"room": "r0",
+			"at": [
+				0.51,
+				0.54
+			],
+			"needs": "screwdriver_0",
+			"gives": "key_vent_0",
+			"consumes": false,
+			"verb": "Unscrew the vent"
+		},
+		{
+			"id": "lever_1",
+			"name": "Lever",
+			"kind": "lever",
+			"room": "r0",
+			"at": [
+				0.71,
+				0.41
+			],
+			"needs": "",
+			"gives": "",
+			"opens": "d1",
+			"verb": "Pull the lever"
+		},
+		{
+			"id": "fusebox_2",
+			"name": "Fuse box",
+			"kind": "fusebox",
+			"room": "r0",
+			"at": [
+				0.55,
+				0.42
+			],
+			"needs": "fuse_2",
+			"gives": "",
+			"opens": "d2",
+			"consumes": true,
+			"verb": "Fit the fuse"
+		},
+		{
+			"id": "tap_3",
+			"name": "Tap",
+			"kind": "tap",
+			"room": "r0",
+			"at": [
+				0.48,
+				0.33
+			],
+			"needs": "bucket_3",
+			"gives": "water_3",
+			"consumes": true,
+			"verb": "Fill the bucket"
+		},
+		{
+			"id": "fire_3",
+			"name": "Fire",
+			"kind": "fire",
+			"room": "r1",
+			"door": "d3",
+			"needs": "water_3",
+			"gives": "bucket_3",
+			"opens": "d3",
+			"consumes": true,
+			"verb": "Put out the fire"
+		},
+		{
+			"id": "lever_4",
+			"name": "Lever",
+			"kind": "lever",
+			"room": "r1",
+			"at": [
+				0.78,
+				0.53
+			],
+			"needs": "",
+			"gives": "",
+			"opens": "d4",
+			"verb": "Pull the lever"
+		}
+	],
+	"steps": [
+		{
+			"text": "Find a screwdriver",
+			"when": {
+				"holds": "screwdriver_0"
+			}
+		},
+		{
+			"text": "Something is behind a vent",
+			"when": {
+				"holds": "key_vent_0"
+			}
+		},
+		{
+			"text": "Open the locked door",
+			"when": {
+				"opened": "d0"
+			}
+		},
+		{
+			"text": "Find the lever that opens the gate",
+			"when": {
+				"used": "lever_1"
+			}
+		},
+		{
+			"text": "Find a fuse",
+			"when": {
+				"holds": "fuse_2"
+			}
+		},
+		{
+			"text": "Fit it in the fuse box",
+			"when": {
+				"used": "fusebox_2"
+			}
+		},
+		{
+			"text": "Find a bucket",
+			"when": {
+				"holds": "bucket_3"
+			}
+		},
+		{
+			"text": "Fill it with water",
+			"when": {
+				"holds": "water_3"
+			}
+		},
+		{
+			"text": "Put out the fire",
+			"when": {
+				"used": "fire_3"
+			}
+		},
+		{
+			"text": "Find the lever that opens the gate",
+			"when": {
+				"used": "lever_4"
+			}
+		},
+		{
+			"text": "Find something to pry the boards off",
+			"when": {
+				"holds": "crowbar_5"
+			}
+		},
+		{
+			"text": "Pry the boarded door open",
+			"when": {
+				"opened": "d5"
+			}
+		},
+		{
+			"text": "Find the red key",
+			"when": {
+				"holds": "key_red_7"
+			}
+		},
+		{
+			"text": "Open the red door",
+			"when": {
+				"opened": "d7"
+			}
+		},
+		{
+			"text": "Find the orange key",
+			"when": {
+				"holds": "key_orange_8"
+			}
+		},
+		{
+			"text": "Open the orange door",
+			"when": {
+				"opened": "d8"
+			}
+		},
+		{
+			"text": "Find the yellow key",
+			"when": {
+				"holds": "key_yellow_9"
+			}
+		},
+		{
+			"text": "Open the yellow door",
+			"when": {
+				"opened": "d9"
+			}
+		},
+		{
+			"text": "Find the gold key",
+			"when": {
+				"holds": "key_gold"
+			}
+		},
+		{
+			"text": "Get out",
+			"when": {
+				"opened": "exit"
+			}
+		}
+	],
+	"witches": [
+		{
+			"path": [
+				[
+					"room",
+					"r8"
+				],
+				[
+					"door",
+					"d9"
+				],
+				[
+					"room",
+					"r10"
+				],
+				[
+					"door",
+					"d9"
+				]
+			],
+			"speed": 2.25,
+			"sight": 13.25,
+			"cone": 88.0
+		},
+		{
+			"path": [
+				[
+					"room",
+					"r9"
+				],
+				[
+					"door",
+					"d8"
+				],
+				[
+					"room",
+					"r3"
+				],
+				[
+					"door",
+					"d2"
+				],
+				[
+					"room",
+					"r2"
+				],
+				[
+					"door",
+					"d2"
+				],
+				[
+					"room",
+					"r3"
+				],
+				[
+					"door",
+					"d8"
+				]
+			],
+			"speed": 2.35,
+			"sight": 13.25,
+			"cone": 88.0
+		},
+		{
+			"path": [
+				[
+					"room",
+					"r1"
+				],
+				[
+					"door",
+					"d3"
+				],
+				[
+					"room",
+					"r4"
+				],
+				[
+					"door",
+					"d3"
+				]
+			],
+			"speed": 2.45,
+			"sight": 13.25,
+			"cone": 88.0
+		},
+		{
+			"path": [
+				[
+					"room",
+					"r8"
+				],
+				[
+					"door",
+					"d9"
+				],
+				[
+					"room",
+					"r10"
+				],
+				[
+					"door",
+					"d9"
+				]
+			],
+			"speed": 2.55,
+			"sight": 13.25,
+			"cone": 88.0
+		}
+	]
+}
