@@ -59,8 +59,13 @@ var refused: Dictionary = {}
 ## key -> LmPlayer.
 var players: Dictionary = {}
 
-## Keys of everybody who has ever won here, kept in config.winners_file.
+## Keys of everybody who has got out of THIS house: key -> when. One of [member _all_winners].
 var winners: Dictionary = {}
+
+## Every house's winners, house id -> {key: when}, kept in config.winners_file. Per house,
+## because getting out of a 16-level house is not getting out of the 32-level one, and a crown
+## that said so would be one the second house's players stop believing.
+var _all_winners: Dictionary = {}
 
 ## Every house this server can play: id -> {"name", "directory"}. And the one being played.
 var houses: Dictionary = {}
@@ -135,6 +140,7 @@ func change_house(id: StringName) -> DotResult:
 
 	build_levels()
 	house_id = id
+	_select_winners()
 
 	for key: StringName in players:
 		var player: LmPlayer = players[key]
@@ -702,8 +708,41 @@ func _read_winners() -> void:
 
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(config.winners_file))
 
-	if parsed is Dictionary:
-		winners = parsed
+	if not (parsed is Dictionary):
+		return
+
+	_all_winners.clear()
+
+	for k: Variant in parsed:
+		if parsed[k] is Dictionary:
+			_all_winners[str(k)] = parsed[k]
+		else:
+			# The file before houses had winners: one flat {key: when}, and the only house there
+			# was the built-in one. Read as that house's, so nobody's crown goes missing.
+			if not _all_winners.has("house"):
+				_all_winners["house"] = {}
+
+			_all_winners["house"][str(k)] = parsed[k]
+
+	_select_winners()
+
+
+## [member winners] made this house's, and every player's crown with it.
+func _select_winners() -> void:
+	var key := String(house_id)
+
+	if not _all_winners.has(key):
+		_all_winners[key] = {}
+
+	winners = _all_winners[key]
+
+	for player_key: StringName in players:
+		(players[player_key] as LmPlayer).won = winners.has(String(player_key))
+
+
+## Every house's winners: house id -> {key: when}.
+func all_winners() -> Dictionary:
+	return _all_winners
 
 
 func _write_winners() -> void:
@@ -711,7 +750,7 @@ func _write_winners() -> void:
 	var file := FileAccess.open(config.winners_file, FileAccess.WRITE)
 
 	if file != null:
-		file.store_string(JSON.stringify(winners, "\t"))
+		file.store_string(JSON.stringify(_all_winners, "\t"))
 		file.close()
 		DotWeb.sync_filesystem()
 

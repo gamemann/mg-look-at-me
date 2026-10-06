@@ -27,7 +27,7 @@ game/
 levels/          The House: lm_01 .. lm_32 and house.json, written by tools/build_levels.py
 houses/asylum/   The Asylum: asylum_01 .. asylum_16, the same builder
 scenes/          lm_server.tscn
-examples/        headless_run (9 sections, 35 checks), headless_net (6, 22), dedicated (6, 16)
+examples/        headless_run (9 sections, 37 checks), headless_net (6, 22), dedicated (6, 16)
 tools/           build_levels.py; shot.sh/.gd (render: eyes, third, witch, above); audio_probe (xvfb only: is there a sound); probe.gd
 ```
 
@@ -55,7 +55,7 @@ Movement is mg-deathrun's: an `LmNetCommand` a tick into dot-net's input buffer,
 
 ## Decision 6: a house is a map, and the players vote between them
 
-The brief: the base game is a map an owner can replace, with a time limit, through dot-map and dot-vote. A **house** is a directory of level documents with a `house.json` ({kind, id, name}); the built-in one is `levels/` ("The House", 32 levels), `houses/<id>/` holds the others (the Asylum, 16, written by the same builder with its own seed and names), and an owner's own goes in `houses/` or `user://lookatme_houses/`. `LmGame.change_house` replaces every level and puts everybody in the new lobby with their reach reset; the bridge sends each client the house again (HELLO, then one LEVEL each), and the client drops the old house's witches. `LmVote` (mg-deathrun's course vote, re-aimed) puts every house on a dot-vote ballot when `house_minutes` (45) is nearly up, the current one and an extension included, applied at once since there are no rounds; `!rtv` any time; 0 minutes is rock-the-vote only. `lm_house <id>` for an operator. dot-server-deploy's `lookatme_client` checks the delivered server found the Asylum inside its mount.
+The brief: the base game is a map an owner can replace, with a time limit, through dot-map and dot-vote. A **house** is a directory of level documents with a `house.json` ({kind, id, name}); the built-in one is `levels/` ("The House", 32 levels), `houses/<id>/` holds the others (the Asylum, 16, written by the same builder with its own seed and names), and an owner's own goes in `houses/` or `user://lookatme_houses/`. `LmGame.change_house` replaces every level and puts everybody in the new lobby with their reach reset; the bridge sends each client the house again (HELLO, then one LEVEL each), and the client drops the old house's witches. `LmVote` (mg-deathrun's course vote, re-aimed) puts every house on a dot-vote ballot when `house_minutes` (45) is nearly up, the current one and an extension included, applied at once since there are no rounds; `!rtv` any time; 0 minutes is rock-the-vote only. `lm_house <id>` for an operator. **Winners are per house**: the winners file is `{house: {key: when}}`, a crown is the current house's (getting out of 16 levels is not getting out of 32), and a flat file from before houses is read as the built-in house's. dot-server-deploy's `lookatme_client` checks the delivered server found the Asylum inside its mount.
 
 ## Decision 7: a TMC account walks the house as its site avatar
 
@@ -74,7 +74,7 @@ The brief: the base game is a map an owner can replace, with a time limit, throu
 godot --headless --path . --import
 find . -name '*.gd' -not -path './.godot/*' -not -path './addons/*' | while read f; do
     godot --headless --path . --check-only --script "res://${f#./}"; done
-godot --headless --path . res://examples/headless_run.tscn   # 9 sections, 35 checks
+godot --headless --path . res://examples/headless_run.tscn   # 9 sections, 37 checks
 godot --headless --path . res://examples/headless_net.tscn   # 6 sections, 22 checks: predicted, through a door open for one, a face that arrives late
 godot --headless --path . res://examples/dedicated.tscn      # 6 sections, 16 checks
 tools/build_levels.py --check
@@ -86,5 +86,4 @@ tools/shot.sh; tools/shot.sh --view=witch --level=8; tools/shot.sh --view=third
 In the order they are worth doing.
 
 1. **A browser look**, then publishing: the pack is `tmc/lookatme` (dot-server-deploy `content/lookatme/`), and the release order is the family's.
-2. **Winners per house.** One winners file for every house: getting out of the Asylum gives the same crown as the House.
-3. **The GitHub repository** is the owner's to create.
+2. **The GitHub repository** is the owner's to create.

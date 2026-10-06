@@ -79,7 +79,7 @@ func _game_load() -> DotResult:
 
 	add_command("lm_status", _cmd_status, "Show the house and who is on which level")
 	add_command("lm_send", _cmd_send, "Send a player to a level: lm_send <name> <level>", DotAdminFlags.CHANGEMAP)
-	add_command("lm_winners", _cmd_winners, "List everybody who has got out")
+	add_command("lm_winners", _cmd_winners, "List everybody who has got out of this house")
 	add_command("lm_house", _cmd_house, "Play another house now: lm_house <id>, or the list with none", DotAdminFlags.CHANGEMAP)
 
 	if bridge != null:
@@ -241,10 +241,17 @@ func _cmd_send(ctx: DotCmdContext) -> void:
 
 
 func _cmd_winners(ctx: DotCmdContext) -> void:
-	var lines := PackedStringArray(["winners (%d)" % (game as LmGame).winners.size()])
+	var world := game as LmGame
+	var lines := PackedStringArray(["winners (%d) of %s" % [world.winners.size(), world.house_name()]])
 
-	for key: String in (game as LmGame).winners:
-		lines.append("  %s  %s" % [key, (game as LmGame).winners[key]])
+	for key: String in world.winners:
+		lines.append("  %s  %s" % [key, world.winners[key]])
+
+	var everywhere := world.all_winners()
+
+	for house: String in everywhere:
+		if house != String(world.house_id) and not (everywhere[house] as Dictionary).is_empty():
+			lines.append("  and %d out of %s" % [(everywhere[house] as Dictionary).size(), house])
 
 	ctx.reply_lines(lines)
 

@@ -11,7 +11,7 @@ const LmPlayer := preload("res://game/lm_player.gd")
 const LmProgress := preload("res://game/lm_progress.gd")
 
 const SECTIONS := 9
-const CHECKS := 35
+const CHECKS := 37
 
 var _passed := 0
 var _failed := 0
@@ -285,6 +285,17 @@ func _test_winning() -> void:
 	_check(_earned.has(["a", "Out"]), "and getting out of the house is the brief's", str(_earned))
 	p.present_body(false)
 	_check(p.get_node_or_null("Crown") != null and (p.get_node("Crown") as Node3D).visible, "with a crown everybody else sees")
+	var _asylum := game.change_house(&"asylum")
+	var crown_away := p.won
+	var _back := game.change_house(&"house")
+	_check(not crown_away and p.won and (game.all_winners()["house"] as Dictionary).has("a") and (game.all_winners()["asylum"] as Dictionary).is_empty(),
+		"the crown is this house's: none in the Asylum, back on coming home", str(game.all_winners()))
+	# The file from before houses kept winners: one flat {key: when}, read as the built-in house's.
+	var legacy := FileAccess.open(game.config.winners_file, FileAccess.WRITE)
+	legacy.store_string(JSON.stringify({"old": "2026-10-01T00:00:00"}))
+	legacy.close()
+	game._read_winners()
+	_check(game.winners.has("old") and String(game.house_id) == "house", "and a winners file from before houses is the built-in house's", str(game.all_winners()))
 	_finished_section()
 
 
