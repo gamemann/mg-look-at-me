@@ -23,6 +23,9 @@ const LmGame := preload("../lm_game.gd")
 const LmPlayer := preload("../lm_player.gd")
 const LmAvatars := preload("../lm_avatars.gd")
 
+## The most a JSON avatar document may be on the wire; mg-deathrun's number.
+const AVATAR_BYTES := 1024
+
 const CHANNEL := "lookatme.net"
 
 const ACK_BYTES := 4
@@ -47,7 +50,12 @@ var rtt_source: Callable = Callable()
 ## kept under. The module returns the account uid; unset, the session.
 var key_fn: Callable = Callable()
 
+## (session_id) -> DotAvatar: what a session looks like, set by the module to dot-platform's
+## answer. Unset, or answering null, is the stock person for the key.
+var avatar_fn: Callable = Callable()
+
 var _key_of_peer: Dictionary = {}
+var _key_of_session: Dictionary = {}
 var _peer_of_key: Dictionary = {}
 var _ready_peers: Dictionary = {}
 var _behaviours: Dictionary = {}
@@ -137,7 +145,9 @@ func add_player(peer_id: int, session_id: int, display_name: String) -> DotResul
 
 	_key_of_peer[peer_id] = key
 	_peer_of_key[key] = peer_id
-	var player := game.join(key, display_name, LmAvatars.stock_avatar(key))
+	_key_of_session[session_id] = key
+	var avatar: DotAvatar = avatar_fn.call(session_id) if avatar_fn.is_valid() else null
+	var player := game.join(key, display_name, avatar if avatar != null else LmAvatars.stock_avatar(key))
 	_build_entity(player, peer_id)
 	return DotResult.success(key)
 
@@ -151,6 +161,11 @@ func remove_peer(peer_id: int) -> void:
 		return
 
 	_peer_of_key.erase(key)
+
+	for session_id: int in _key_of_session.keys():
+		if _key_of_session[session_id] == key:
+			_key_of_session.erase(session_id)
+
 	var behaviour: LmPlayerNet = _behaviours.get(key, null)
 	_behaviours.erase(key)
 
@@ -161,6 +176,27 @@ func remove_peer(peer_id: int) -> void:
 
 	if net.peers().has(peer_id):
 		var _gone := net.remove_peer(peer_id)
+
+
+## A name or a face that arrived after the player was seated (dot-platform admits AFTER the
+## seat, so the first JOIN is a guest's whenever the profile store is slower than the join),
+## or a wardrobe change later: the player takes it and everybody is sent the JOIN again.
+func refresh_player(session_id: int, display_name: String, avatar: DotAvatar) -> bool:
+	if net == null or not net.is_server or game == null:
+		return false
+
+	var key: StringName = _key_of_session.get(session_id, &"")
+	var player: LmPlayer = game.players.get(key, null)
+
+	if player == null:
+		return false
+
+	if display_name != "":
+		player.display_name = display_name
+
+	player.set_avatar(avatar if avatar != null else LmAvatars.stock_avatar(key))
+	_broadcast(LmEvents.Kind.JOIN, _join_body(key))
+	return true
 
 
 func key_of_peer(peer_id: int) -> StringName:
@@ -241,7 +277,18 @@ func _join_body(key: StringName) -> Dictionary:
 		return {}
 
 	return {"key": String(key), "name": behaviour.player.display_name, "net_id": behaviour.identity.net_id,
-		"skin": LmAvatars.skin_index(behaviour.player.avatar)}
+		"avatar": _avatar_wire(behaviour.player.avatar)}
+
+
+## The avatar DOCUMENT rather than the skin it picks, so a client reads a site avatar itself
+## (deathrun's reason: a slot added later needs no new wire). Capped, because a document a
+## hostile profile made enormous would otherwise ride every JOIN; over the cap is the stock person.
+static func _avatar_wire(avatar: DotAvatar) -> Dictionary:
+	if avatar == null:
+		return {}
+
+	var doc := avatar.to_dict()
+	return doc if JSON.stringify(doc).length() <= AVATAR_BYTES else {}
 
 
 func _send_progress(key: StringName) -> void:
@@ -495,16 +542,39 @@ func _on_event(message: DotNetMessage) -> void:
 func _apply_join(data: Dictionary) -> void:
 	var key := StringName(str(data.get("key", "")))
 
-	if key == &"" or _behaviours.has(key):
+	if key == &"":
 		return
 
-	var avatar := LmAvatars.stock_avatar(key)
+	var avatar := _avatar_from_wire(key, data.get("avatar", {}))
+
+	# Again for somebody already here is a new name or face, not a second player.
+	if _behaviours.has(key):
+		var known: LmPlayer = game.players.get(key, null)
+
+		if known != null:
+			known.display_name = str(data.get("name", known.display_name))
+			known.set_avatar(avatar)
+
+		return
+
 	var player := game.join(key, str(data.get("name", key)), avatar)
 	var mine := key == local_key
 	var identity := _build_entity(player, net.local_peer_id if mine else 0, int(data.get("net_id", 0)))
 
 	if mine:
 		var _claimed := net.registry.change_owner(identity.net_id, net.local_peer_id)
+
+
+## A document that does not parse is the stock person, not a refused join: an avatar is
+## cosmetic, and somebody who cannot be drawn as themselves can still be drawn.
+static func _avatar_from_wire(key: StringName, wire: Variant) -> DotAvatar:
+	if wire is Dictionary and not (wire as Dictionary).is_empty():
+		var built := DotAvatar.from_dict(wire)
+
+		if built.ok:
+			return built.value
+
+	return LmAvatars.stock_avatar(key)
 
 
 ## The owner's own progress: what to show, and the doors its prediction must walk through.

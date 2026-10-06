@@ -141,6 +141,15 @@ func reset_level() -> void:
 	caught_left = 0.0
 
 
+## A new face: the figure is rebuilt on the next draw.
+func set_avatar(next: DotAvatar) -> void:
+	avatar = next
+
+	if figure != null:
+		figure.queue_free()
+		figure = null
+
+
 ## What somebody else sees: a Kenney figure in this player's avatar, and a crown over a winner.
 func present_body(own_view: bool) -> void:
 	if figure == null:

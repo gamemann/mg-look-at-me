@@ -16,7 +16,7 @@ enum Kind {
 	## and a WebSocket's outbound buffer is 64 KiB by default, so a browser client would never
 	## be told the house it is standing in.
 	LEVEL,
-	## A player is here: key, name, net id, avatar skin.
+	## A player is here, or has a new name or face: key, name, net id, the avatar document.
 	JOIN,
 	## A player left.
 	LEAVE,

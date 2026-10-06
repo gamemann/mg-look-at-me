@@ -11,7 +11,8 @@ const LmPlayer := preload("res://game/lm_player.gd")
 const LmLevel := preload("res://game/lm_level.gd")
 
 const SECTIONS := 6
-const CHECKS := 20
+const CHECKS := 22
+const LmAvatars := preload("res://game/lm_avatars.gd")
 const CLIENT_PEER := 7
 const SESSION := 42
 const INPUT_LEAD := 2
@@ -149,6 +150,21 @@ func _test_joining() -> void:
 	var identity: DotNetIdentity = mine.get_node_or_null("Identity") if mine != null else null
 	_check(identity != null and identity.is_predicted(), "and predicts its own player")
 	_check(absf(_client_game.levels[16].position.x - _server_game.levels[16].position.x) < 0.001, "its house is laid out where the server's is")
+	var server_mine: LmPlayer = _server_game.players.get(_key, null)
+	_check(mine != null and server_mine != null and LmAvatars.skin_index(mine.avatar) == LmAvatars.skin_index(server_mine.avatar),
+		"it draws its player in the face the server seated them with")
+	# The platform's answer arriving after the seat: another skin, and the same JOIN again.
+	var other := DotAvatar.make(LmAvatars.SCHEMA_ID)
+	var next_skin: StringName = LmAvatars.SKINS[(maxi(LmAvatars.skin_index(server_mine.avatar), 0) + 1) % LmAvatars.SKINS.size()]
+	other.set_part(LmAvatars.SLOT_SKIN, next_skin)
+	var refreshed := _server_bridge.refresh_player(SESSION, "Ada Lovelace", other)
+	_exchange()
+	await _steps(5)
+	mine = _client_game.players.get(_key, null)
+	_check(refreshed and mine != null and mine.avatar.part_in(LmAvatars.SLOT_SKIN) == next_skin and mine.display_name == "Ada Lovelace"
+		and _client_game.players.size() == 1,
+		"a face and a name that arrive later replace the first ones, and are not a second player",
+		"%s %s" % [mine.avatar.to_dict() if mine != null else null, mine.display_name if mine != null else ""])
 	_finished_section()
 
 

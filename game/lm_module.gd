@@ -13,6 +13,7 @@ const LmServices := preload("lm_services.gd")
 const LmGame := preload("lm_game.gd")
 const LmProgress := preload("lm_progress.gd")
 const LmVote := preload("lm_vote.gd")
+const LmAvatars := preload("lm_avatars.gd")
 
 ## The players' vote for the next house, or null.
 var vote: LmVote = null
@@ -59,8 +60,15 @@ func _make_services() -> Node:
 	return LmServices.new()
 
 
+## Profiles, names and faces: dot-platform's identity over mg-deathrun's one-slot schema, so a
+## TMC account walks the house as the avatar it picked on the site. Authentication is the
+## host's, as for every game; with it off everybody is a guest with a stock face.
 func _make_identity() -> Node:
-	return null
+	var identity_layer := DotPlatformIdentity.new()
+	identity_layer.avatar_schema = LmAvatars.schema()
+	identity_layer.stock_avatar_fn = LmAvatars.stock_avatar
+	identity_layer.avatar_translate_fn = LmAvatars.from_site
+	return identity_layer
 
 
 func _game_load() -> DotResult:
@@ -76,6 +84,8 @@ func _game_load() -> DotResult:
 
 	if bridge != null:
 		bridge.connect("say_requested", _on_say_requested)
+
+	_wire_identity()
 
 	_build_vote(world)
 
@@ -237,3 +247,47 @@ func _cmd_winners(ctx: DotCmdContext) -> void:
 		lines.append("  %s  %s" % [key, (game as LmGame).winners[key]])
 
 	ctx.reply_lines(lines)
+
+
+## Admission finishes after a player is seated, so the real name and face arrive as
+## `player_admitted`; a wardrobe change and an operator's rename are the same thing later. All
+## three end in [method LmNetBridge.refresh_player], a JOIN every client already applies.
+func _wire_identity() -> void:
+	var link := bridge as LmNetBridge
+
+	if link == null:
+		return
+
+	link.avatar_fn = _avatar_for
+	hook_post("player_admitted", _on_profile)
+	hook_post("player_avatar_changed", _on_profile)
+	hook_post("player_renamed", _on_profile)
+
+
+## Through the platform module's `player_for`, never the hub by a key made here: the hub keys
+## a player by the scoped profile key only admission knows (mg-deathrun found a lookup by any
+## other key finds nobody, every time, and reads as "no avatar"). Duck-typed, because a server
+## without dot-platform is a configuration.
+func _avatar_for(session_id: int) -> DotAvatar:
+	var session := server.session_by_userid(session_id) if server != null else null
+	var platform: Object = server.modules.get_module("platform") \
+		if server != null and server.modules != null else null
+
+	if session != null and platform != null and platform.has_method("player_for"):
+		var player: Variant = platform.call("player_for", session)
+
+		if player is Object and (player as Object).get("avatar") is DotAvatar:
+			return (player as Object).get("avatar") as DotAvatar
+
+	return null
+
+
+func _on_profile(event: DotEvent) -> void:
+	var session_id := event.get_int("userid")
+	var session := server.session_by_userid(session_id) if server != null else null
+	var link := bridge as LmNetBridge
+
+	if session == null or link == null:
+		return
+
+	var _refreshed := link.refresh_player(session_id, session.display_name, _avatar_for(session_id))
