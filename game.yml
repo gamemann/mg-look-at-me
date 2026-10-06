@@ -1,5 +1,5 @@
-# This game's descriptor. NOT YET LOADABLE BY A SERVER (2026-10-06): no module, no server
-# scene, no bridge yet; it runs offline (`godot --path .`). See CLAUDE.md.
+# This game's descriptor: what a server runs when it installs this repository's pack.
+# Not yet in dot-server-deploy's content/ as published (2026-10-06).
 
 content_id: gamemann/mg-look-at-me
 version: 0.0.0
@@ -8,4 +8,6 @@ kind: pack
 name: Look At Me
 max_players: 24
 
+scene: scenes/lm_server.tscn
 client_scene: game/lm.tscn
+module: game/lm_module.gd

@@ -11,6 +11,7 @@ const LmGame := preload("lm_game.gd")
 const LmPlayer := preload("lm_player.gd")
 const LmLevel := preload("lm_level.gd")
 const LmNetBridge := preload("net/lm_net_bridge.gd")
+const LmClientChat := preload("lm_client_chat.gd")
 
 ## Where dot-server's client publishes its link before the game scene loads.
 const LINK_SERVICE := &"dot_client_link"
@@ -48,6 +49,7 @@ var link: Node = null
 var _offline: bool = true
 ## Connected, the keys are sampled here and sent; the local player is predicted from them.
 var _sampler: DotFpsSampler = null
+var chat: LmClientChat = null
 
 
 func _ready() -> void:
@@ -86,10 +88,16 @@ func _ready() -> void:
 	flashlight.position = Vector3(0.2, -0.15, 0.0)
 
 	_build_hud()
+	chat = LmClientChat.new()
+	chat.name = "Chat"
+	add_child(chat)
 
 	if not _offline:
 		DotLog.result(CHANNEL, "the netcode", _build_netcode())
+		DotLog.result(CHANNEL, "chat and voice", chat.attach(bridge))
 		return
+
+	DotLog.result(CHANNEL, "chat, offline", chat.attach(null))
 
 	game.said.connect(func(key: StringName, text: String) -> void:
 		if key == local_key:
@@ -168,7 +176,8 @@ func _physics_process(delta: float) -> void:
 	if link != null and link.has_method("is_playing") and not bool(link.call("is_playing")):
 		return
 
-	var move := _sampler.sample(delta) if _sampler != null and not _command.visible else DotFpsCommand.new()
+	var typing := _command.visible or (chat != null and chat.is_typing())
+	var move := _sampler.sample(delta) if _sampler != null and not typing else DotFpsCommand.new()
 
 	if command_override != null:
 		move = command_override
@@ -297,6 +306,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if key == null or not key.pressed or key.echo or _command.visible:
 		return
 
+	if chat != null and chat.is_typing():
+		return
+
 	match key.keycode:
 		KEY_E:
 			_act("use")
@@ -354,6 +366,9 @@ func _act(action: String, args: Dictionary = {}) -> void:
 		"command":
 			var reply := game.command(local_key, str(args.get("text", "")))
 			_say(reply if reply != "" else "Nothing called that")
+		"say":
+			if chat != null:
+				chat.say_locally(str(args.get("text", "")))
 
 
 # --- Every frame -------------------------------------------------------------

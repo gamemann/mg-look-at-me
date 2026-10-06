@@ -9,6 +9,18 @@
 /addons/dot_player
 /addons/dot_player_controller
 /addons/dot_user_avatar
+/addons/dot_achievements
+/addons/dot_stats
+/addons/dot_ui
+/addons/dot_platform
+/addons/dot_user
+/addons/dot_auth
+/addons/dot_cloud
+/addons/dot_moderation
+/addons/dot_voice
+/addons/dot_chat
+/addons/dot_game
+/addons/dot_server
 
 # Exports
 build/
