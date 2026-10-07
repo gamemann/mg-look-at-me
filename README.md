@@ -1,59 +1,124 @@
-# Look At Me
+This is a game to demonstrate the capabilities of the [**Dot collection**](https://moddingcommunity.com/co/4-dot-assets) built on-top of [Godot 4](https://godotengine.org/) and [TMC's gaming platform](https://moddingcommunity.com/play). In this 3D game, players make their way through a dark house, thirty-two levels deep, while witches walk its rooms. Find what opens the next door before one of them looks at you for too long.
 
-A dark house, thirty-two levels deep, with witches walking its rooms. Find what opens the next door before one of them looks at you.
+**This project and the assets under it are COMPLETELY OPEN SOURCE**. You are free to use, modify, and distribute them under the terms of the MIT license. The only thing not open source is the back-end web infrastructure. So if you opt into using your own authentication backend instead of integrating with TMC, you will need to build and integrate your own back-end infrastructure.
 
-A minigame for the TMC platform, built on the dot-* addons.
+## From Maintainer & WARNING
+This project, along with every asset it is built on, was built initially with **Claude Code** and will continue to be maintained and extended using it. This is because I (`gamemann`) cannot build the entire TMC platform alone (I wish I could lol).
 
-## Playing
+**Please treat this as partially tested.** It has its own headless test suite and that suite passes, but very little of this has been in front of real players yet. Expect rough edges, and please report anything you run into.
 
-You arrive in the lobby, the one lit room in the house and the start of level 1. Every level is a set of rooms behind doors that do not open on their own: a coloured key for a coloured door, a bucket filled at a tap to put out a fire in a doorway, a fuse for a dead fuse box, a crowbar for a boarded door, a code found on a note for a keypad, a lever somewhere else that opens a gate, a screwdriver for a vent with a key behind it. The top left always says what to do next. The gold key opens the way out, and the way out is the next level.
+I intend on reviewing code, testing, and editing documentation regularly. If you're interested in helping out, please let me know!
 
-**Everybody plays every level themselves.** What you pick up, open and use is yours: the door you unlocked is open for you and still locked for the person behind you. That is what lets the house run for ever, with people arriving and leaving at any time.
+## How it plays
+You arrive in the lobby, the one lit room in the house and the start of level 1. Every level is a set of rooms behind doors that don't open on their own:
 
-**The witches.** They walk the rooms in the dark. One that can see you fills the meter at the bottom of the screen, faster the nearer you are and much faster with your flashlight on; crouching and standing still help. Out of her sight it drains, after a moment. Full is caught: back to the start of the level, and the level's progress with you. There is one witch on level 1 and six by the end, faster and sharper-eyed each level. Their sight is drawn as a faint red fan on the floor.
+- a coloured key for a coloured door;
+- a bucket filled at a tap, to put out a fire in a doorway;
+- a fuse for a dead fuse box, a crowbar for a boarded door, a screwdriver for a vent;
+- a code from a note for a keypad, or a lever somewhere else that opens a gate.
 
-The rooms are furnished — bookcases, sofas, stoves, bathtubs — along their walls, and furniture hides you from a witch as well as a wall does.
+The top left of the screen always says what to do next. The gold key opens the way out, and the way out is the next level.
+
+**Everybody plays every level for themselves.** What you pick up, open and use is yours: a door you unlocked is open for you and still locked for the player behind you. So people can arrive and leave at any time.
+
+**The witches** walk the rooms in the dark, and their line of sight is drawn as a faint red fan on the floor. While one can see you, the meter at the bottom of the screen fills: faster the closer she is, and much faster with your flashlight on. Crouching and standing still help, and furniture hides you as well as a wall does. Out of sight, the meter drains after a moment. If it fills, you're caught and go back to the start of the level. Level 1 has one witch; the last levels have six, faster and sharper-eyed.
 
 Finish all thirty-two and you get a crown everybody else can see.
 
-| Key | |
+There are two **houses**: The House (32 levels) and The Asylum (16). A server plays one at a time, and after 45 minutes the players vote on the next. `!rtv` calls a vote at any time.
+
+## Controls
+
+| Key | Action |
 | --- | --- |
-| WASD, mouse | Move, look |
-| Ctrl | Crouch |
-| E | Take, open, use |
-| F | Flashlight |
-| C | First / third person |
-| / | A command: `/r` back to the lobby, `/l3` (or `/l 3`) a level you have reached |
+| **WASD** / mouse | Move and look |
+| **Ctrl** | Crouch |
+| **E** | Take, open, use |
+| **F** | Flashlight |
+| **C** | First or third person |
+| **/** | A command: `/r` goes back to the lobby, `/l3` (or `/l 3`) goes to a level you have reached |
 
-## Running a server
-
-The game is a dot-server pack: `scenes/lm_server.tscn` is the house, `game/lm_module.gd` the module (see `game.yml`). Console: `lm_status`, `lm_send <name> <level>`, `lm_winners`. Players type `/r` and `/l3` in chat or on the `/` line.
-
-Every rule is a setting, layered like everything in the family: defaults < `user://cfg/lookatme.json` < `LM_*` environment < `--lm-*` command line. The meter (`exposure_rate`, `decay_rate`, `decay_delay`), what changes it (`flashlight_exposure`, `flashlight_sight`, `crouch_exposure`, `still_exposure`), what a catch costs (`caught_penalty`: keep what you hold, or lose the level), the witches (`witch_speed_scale`, `witch_sight_scale`, `witch_cone_scale`, `witch_head_sweep`), the dark (`darkness_ambient`, `flashlight_range`, `flashlight_angle`), `shared_progress` (one player's key opens the door for everybody on the level; off by default) and `allow_third_person`.
-
-## Houses
-
-A house is a set of levels. Two ship — The House (32 levels) and The Asylum (16) — and a server plays one at a time: after `house_minutes` (45) the players vote on the next, the same house and an extension on the ballot; `!rtv` calls a vote any time; an operator types `lm_house asylum`. Your own house is a directory of level documents with a `house.json` (`{"kind": "house", "id": "mine", "name": "My House"}`) in `houses/` or `user://lookatme_houses/`.
-
-## Writing a level
-
-A level is one JSON file in `levels/`: rooms on a grid (a room is `w` by `d` cells of `cell` metres), doors on the walls rooms share (or, for the way out, on an outside wall), items, stations (things you use an item on: `needs`, `gives`, `opens`), steps (the text the HUD shows, each done when you hold, opened or used something), and witches (a loop of room centres, doorways and points in rooms, a speed, a sight range and a cone). The shipped thirty-two are written by `tools/build_levels.py`, which grows each level's rooms as a tree, locks every new door behind a puzzle whose parts are already reachable, and refuses to write a level it cannot finish.
-
-## Checking it
+## Getting started
+You need [Godot 4.7](https://godotengine.org/download). The game is built from many Dot addons, each in its own repository, so the easiest way to get everything is [dot-bootstrap](https://github.com/modcommunity/dot-bootstrap). It clones every project and links the addons into each one:
 
 ```bash
-godot --headless --path . --import
-godot --headless --path . res://examples/headless_run.tscn   # 9 sections, 35 checks
-godot --headless --path . res://examples/headless_net.tscn   # a server and a predicting client, 19 checks
-godot --headless --path . res://examples/dedicated.tscn      # a real server and the module, 14 checks
-tools/build_levels.py --check
-tools/shot.sh --view=witch --level=8
+git clone https://github.com/modcommunity/dot-bootstrap.git
+cd dot-bootstrap
+./bootstrap.sh
+cd projects/mg-look-at-me
+./game.sh
 ```
 
+On Windows, run `bootstrap.ps1` instead and open the project in Godot.
+
+`game.sh` does everything else:
+
+| Command | What it does |
+| --- | --- |
+| `./game.sh` | Play offline |
+| `./game.sh online` | Start a local server and the browser client, and print the link to open |
+| `./game.sh online down` | Stop them |
+| `./game.sh server` | Start a local dedicated server only |
+| `./game.sh test` | Check every script and run every test suite |
+| `./game.sh shot` | Save a screenshot to `screenshots/`. `./game.sh shot --help` lists the views |
+| `./game.sh help` | All of the options |
+
+`online` and `server` use [dot-server-deploy](https://github.com/modcommunity/dot-server-deploy), which bootstrap clones next to this one. Run its `./setup.sh` once first.
+
+## Running a server
+Console commands:
+
+| Command | |
+| --- | --- |
+| `lm_status` | What the server is doing |
+| `lm_send <name> <level>` | Send a player to a level |
+| `lm_winners` | Who has finished the house |
+| `lm_house <id>` | Switch to another house (e.g. `lm_house asylum`) |
+
+Everything else is a setting. Put it in `user://cfg/lookatme.json`, or set it with an `LM_*` environment variable or an `--lm-*` argument (the later one wins):
+
+| Setting | |
+| --- | --- |
+| `exposure_rate`, `decay_rate`, `decay_delay` | How fast the meter fills and drains |
+| `flashlight_exposure`, `flashlight_sight`, `crouch_exposure`, `still_exposure` | What changes it |
+| `caught_penalty` | What getting caught costs: keep what you hold, or lose the level |
+| `witch_speed_scale`, `witch_sight_scale`, `witch_cone_scale`, `witch_head_sweep` | The witches |
+| `darkness_ambient`, `flashlight_range`, `flashlight_angle` | The dark |
+| `shared_progress` | One player's key opens the door for everybody on that level (off by default) |
+| `allow_third_person` | Whether **C** works |
+| `house_minutes` | How long a house plays before the vote (45) |
+
+## Writing a level
+A level is one JSON file in `levels/`. It describes:
+
+- **rooms** on a grid (a room is `w` by `d` cells of `cell` metres);
+- **doors** on the walls two rooms share (or, for the way out, on an outside wall);
+- **items**, and **stations** you use an item on (`needs`, `gives`, `opens`);
+- **steps**, the text the HUD shows, each done when you hold, open or use something;
+- **witches**: a loop of room centres, doorways and points in rooms, a speed, a sight range and a cone.
+
+The shipped levels are written by `tools/build_levels.py`. It grows each level's rooms as a tree, locks every new door behind a puzzle whose parts are already reachable, and refuses to write a level it can't finish.
+
+A house is a folder of levels with a `house.json` (`{"kind": "house", "id": "mine", "name": "My House"}`), in `houses/` or `user://lookatme_houses/`.
+
+## Testing
+
+```bash
+./game.sh test                  # every script parses, then every suite runs
+./game.sh test headless_run     # one suite
+tools/build_levels.py --check   # the shipped levels are what the builder writes
+```
+
+| Suite | What it covers |
+| --- | --- |
+| `headless_run` | The game itself: levels, doors, puzzles, the witches and the meter |
+| `headless_net` | A server and a client in one process, over the network code |
+| `dedicated` | A real server: boots, loads the game, runs its commands |
+
+[`CLAUDE.md`](CLAUDE.md) has the design decisions and the reasoning behind them.
+
 ## Credits
+The characters are Kenney's Blocky Characters and the furniture is Kenney's Furniture Kit ([kenney.nl](https://kenney.nl), CC0), in `assets/kenney/` with their licences. Everything else is drawn in code.
 
-- Characters: [Kenney](https://kenney.nl) Blocky Characters, CC0 1.0 (`assets/kenney/characters/`, licence beside them).
-- Furniture: [Kenney](https://kenney.nl) Furniture Kit, CC0 1.0 (`assets/kenney/furniture/`, licence beside them).
-- Everything else is drawn in code.
-
-MIT licence; see [LICENSE](LICENSE).
+## License
+MIT. See [LICENSE](LICENSE). The Kenney art is CC0, which is public domain.
