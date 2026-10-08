@@ -7,8 +7,8 @@ extends Node
 
 const LmGame := preload("../game/lm_game.gd")
 
-const SECTIONS := 6
-const CHECKS := 16
+const SECTIONS := 7
+const CHECKS := 21
 
 const SERVER_DIR := "user://lm_dedicated"
 const PORT := 28951
@@ -42,6 +42,7 @@ func _run() -> void:
 		await _test_the_module_loads()
 		_test_the_console()
 		await _test_stand_ins()
+		_test_an_empty_server()
 		await _test_it_unloads()
 
 	_test_no_message_preloads_itself()
@@ -166,6 +167,39 @@ func _test_stand_ins() -> void:
 	var before := game.tick
 	await _seconds(1.0)
 	_check(game.tick > before + 30, "the house ticks on the server's clock", "%d ticks" % (game.tick - before))
+	_finished_section()
+
+
+## Nobody connected. With hibernation off (this suite's server) the house's time running out
+## changes the house on its own, at random; with it on, the clock waits and starts again from
+## the top on waking. DotGameModule hands the director the server; this game writes no line.
+func _test_an_empty_server() -> void:
+	_section("an empty server: a new house on its own, or a clock that waits")
+	var vote: Node = _module().get("vote")
+	var director: DotVoteDirector = vote.get("director") if vote != null else null
+
+	if director == null:
+		_check(false, "the house vote is built")
+		_finished_section()
+		return
+
+	_check(server.hibernation_changed.is_connected(director.set_hibernating),
+		"the house vote follows the server's hibernation")
+
+	var before := game.house_id
+	director.advance(director.clock.remaining + 1.0)
+	_check(game.house_id != before and game.houses.has(game.house_id),
+		"the house's time running out with nobody here opens another house", "%s -> %s" % [before, game.house_id])
+
+	server.console.execute("sv_hibernate_when_empty 1")
+	var asleep_on := game.house_id
+	director.advance(director.clock.remaining + 1.0)
+	_check(server.is_hibernating() and game.house_id == asleep_on,
+		"hibernating, the same wait changes nothing", server.state_name())
+	server.console.execute("sv_hibernate_when_empty 0")
+	_check(not director.hibernating, "waking wakes the vote")
+	_check(is_equal_approx(director.clock.remaining, director.clock.duration),
+		"with the house's whole time limit ahead of it", director.clock.formatted_remaining())
 	_finished_section()
 
 
