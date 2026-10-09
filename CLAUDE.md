@@ -21,13 +21,14 @@ game/
   lm_server.gd   what scenes/lm_server.tscn runs: the house, drawing nothing
   lm_vote.gd     the house vote over dot-vote: a time limit, rock the vote, applied at once
   lm_progress.gd dot-stats (levels, deepest, catches, wins) and four achievements, "Out" the brief's; reported to the backbone
+  lm_settings.gd the player's settings and the screen Escape opens
   lm_sounds.gd   synthesised: a heartbeat that races with the meter, a drone on every witch, a click
   net/           lm_events (JSON kinds), lm_event/lm_request, lm_net_link, lm_net_command (the move), lm_player_net (movement + level/flashlight/won, meter/caught to the owner), lm_net_bridge
   lm_figure.gd, lm_avatars.gd, lm_paths.gd   mg-deathrun's, renamed (Kenney blocky characters, the avatar schema, mount paths)
 levels/          The House: lm_01 .. lm_32 and house.json, written by tools/build_levels.py
 houses/asylum/   The Asylum: asylum_01 .. asylum_16, the same builder
 scenes/          lm_server.tscn
-examples/        headless_run (9 sections, 37 checks), headless_net (6, 22), dedicated (6, 16)
+examples/        headless_run (10 sections, 39 checks), headless_net (6, 22), dedicated (6, 16)
 tools/           build_levels.py; shot.sh/.gd (render: eyes, third, witch, above); audio_probe (xvfb only: is there a sound); probe.gd
 ```
 
@@ -68,13 +69,17 @@ The brief: the base game is a map an owner can replace, with a time limit, throu
 - **Sound is only provable under xvfb** (`tools/audio_probe`: ALSA, the heartbeat playing at a 0.9 meter, a drone on each witch); `--headless` has the Dummy driver and plays nothing.
 - **The lobby was as dark as the house** with one lamp in the middle of a 24 m room. Lit rooms get a lamp every cell and a half.
 
+## Settings, and Escape opens them (2026-10-08)
+
+`LmSettings` is mg-buses-from-hell's `BfhSettings` cut down to what this game has: sensitivity (ACCOUNT, the family's 0.022 degrees per unit, bound to the controller's tunables, which both samplers read), field of view (SERVER_CLAMPED, default the 75 the camera always had) and one master volume on the engine's Master bus, because `LmSounds` plays through plain players there and there is no mixer to split a voice or effects slider from. Escape, which only let go of the mouse, also opens dot-ui's `DotSettingsScreen`; walking is suspended while it is up. dot-settings is newly linked (the shell already vendors it). `headless_run`'s "the client's settings are read" boots a real client and presses Escape (10 sections, 39 checks).
+
 ## Validating
 
 ```bash
 godot --headless --path . --import
 find . -name '*.gd' -not -path './.godot/*' -not -path './addons/*' | while read f; do
     godot --headless --path . --check-only --script "res://${f#./}"; done
-godot --headless --path . res://examples/headless_run.tscn   # 9 sections, 37 checks
+godot --headless --path . res://examples/headless_run.tscn   # 10 sections, 39 checks
 godot --headless --path . res://examples/headless_net.tscn   # 6 sections, 22 checks: predicted, through a door open for one, a face that arrives late
 godot --headless --path . res://examples/dedicated.tscn      # 6 sections, 16 checks
 tools/build_levels.py --check

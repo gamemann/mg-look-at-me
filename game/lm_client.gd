@@ -8,6 +8,7 @@ extends Node3D
 ## the player does goes through [method _act]; everything they see comes from [member game].
 
 const LmGame := preload("lm_game.gd")
+const LmSettings := preload("lm_settings.gd")
 const LmPlayer := preload("lm_player.gd")
 const LmLevel := preload("lm_level.gd")
 const LmNetBridge := preload("net/lm_net_bridge.gd")
@@ -53,6 +54,9 @@ var _sampler: DotFpsSampler = null
 var chat: LmClientChat = null
 var sounds: LmSounds = null
 
+## The player's own settings and the screen Escape opens. See [LmSettings].
+var settings: LmSettings = null
+
 
 func _ready() -> void:
 	_build_environment()
@@ -96,6 +100,7 @@ func _ready() -> void:
 	sounds = LmSounds.new()
 	sounds.name = "Sounds"
 	add_child(sounds)
+	_build_settings()
 	chat = LmClientChat.new()
 	chat.name = "Chat"
 	add_child(chat)
@@ -117,6 +122,40 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if not DotPlatform.is_web() else Input.MOUSE_MODE_VISIBLE
 
 
+## The player's settings, bound to the camera and the sampler's tunables. See [LmSettings].
+##
+## The look is bound to the controller's own tunables, which both samplers read (offline the
+## player's, connected the client's); [method _adopt_player] binds them for a later player.
+func _build_settings() -> void:
+	settings = LmSettings.new()
+	settings.name = "Settings"
+	add_child(settings)
+
+	var built: DotResult = settings.setup()
+
+	if not built.ok:
+		DotLog.warn(CHANNEL, "no settings; everything is at its default", {"why": built.error.message})
+		remove_child(settings)
+		settings.free()
+		settings = null
+		return
+
+	settings.bind_camera(camera)
+
+	if player != null and player.controller != null:
+		settings.bind_look(player.controller.tunables)
+
+	if settings.stack != null:
+		# Walking is off while the menu is up, as it is while typing a command.
+		settings.stack.menu_state_changed.connect(func(any_open: bool) -> void:
+			for sampler: DotFpsSampler in [_sampler, player.sampler if player != null else null, _held_sampler]:
+				if sampler != null:
+					sampler.suspended = any_open
+			if not any_open and not DotPlatform.is_web() and not _command.visible:
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		)
+
+
 func _adopt_player(p: LmPlayer) -> void:
 	player = p
 
@@ -126,6 +165,9 @@ func _adopt_player(p: LmPlayer) -> void:
 	else:
 		_sampler = DotFpsSampler.new(player.controller.tunables)
 		DotFpsSampler.register_default_actions(_sampler)
+
+	if settings != null:
+		settings.bind_look(player.controller.tunables)
 
 
 ## The netcode, built inside `_ready` (inside the shell's scene load), as every game here does.
@@ -340,6 +382,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		KEY_ESCAPE:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			# And the settings: a released pointer with nothing to click was half a key. A
+			# second Escape is dot-ui's stack's, deeper in the tree, which closes the screen.
+			if settings != null:
+				settings.open()
 
 
 func _on_command(text: String) -> void:
