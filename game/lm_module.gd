@@ -102,6 +102,13 @@ func _game_load() -> DotResult:
 
 	_wire_identity()
 
+	# Houses from the map packs the server names (its cfg/content.yml), before the vote
+	# lists what can be played.
+	var delivered: PackedStringArray = await DotGameContent.map_dirs(server, "houses")
+
+	if not delivered.is_empty():
+		world.add_house_roots(delivered)
+
 	_build_vote(world)
 
 	progress = LmProgress.new()

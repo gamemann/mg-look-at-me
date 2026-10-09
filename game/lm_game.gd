@@ -105,13 +105,29 @@ static func _resolve(dir: String) -> String:
 	return dir if dir.begins_with("res://") or dir.begins_with("user://") else LmPaths.rebase("res://%s" % dir)
 
 
+## Directories laid out like [member LmConfig.houses_directory], from the map packs the
+## server names (DotGameContent.map_dirs). Set through [method add_house_roots].
+var extra_house_roots := PackedStringArray()
+
+
+## Adds houses delivered as packs and lists every house again, so the vote and `lm_house`
+## see them. The house being played is not changed.
+func add_house_roots(roots: PackedStringArray) -> void:
+	for root in roots:
+		if not extra_house_roots.has(root):
+			extra_house_roots.append(root)
+
+	_find_houses()
+
+
 ## The built-in house, and every directory under [member LmConfig.houses_directory] with a
-## house.json, in res:// and in user:// (an owner's own).
+## house.json: in res://, in user:// (an owner's own), and in every map pack the server
+## names for this game.
 func _find_houses() -> void:
 	houses.clear()
 	houses[&"house"] = {"name": "The House", "directory": _resolve(config.level_directory)}
 
-	for root in [_resolve(config.houses_directory), "user://lookatme_houses"]:
+	for root in [_resolve(config.houses_directory), "user://lookatme_houses"] + Array(extra_house_roots):
 		var dir := DirAccess.open(root)
 
 		if dir == null:
