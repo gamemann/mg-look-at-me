@@ -11,6 +11,7 @@ extends DotGameModule
 const LmNetBridge := preload("net/lm_net_bridge.gd")
 const LmServices := preload("lm_services.gd")
 const LmGame := preload("lm_game.gd")
+const LmPlayer := preload("lm_player.gd")
 const LmProgress := preload("lm_progress.gd")
 const LmVote := preload("lm_vote.gd")
 const LmAvatars := preload("lm_avatars.gd")
@@ -69,6 +70,20 @@ func _make_identity() -> Node:
 	identity_layer.stock_avatar_fn = LmAvatars.stock_avatar
 	identity_layer.avatar_translate_fn = LmAvatars.from_site
 	return identity_layer
+
+
+## The Tab board's columns: the level each player is on, the furthest they have reached,
+## and whether they got out. Kept under the account (see [method _make_bridge]), which a
+## client cannot work out from a session, so they come from here.
+func _game_board_fields(session: Object) -> Dictionary:
+	var world := game as LmGame
+	var uid := str(session.call("uid")) if session != null and session.has_method("uid") else ""
+	if world == null or uid == "":
+		return {}
+	var who: LmPlayer = world.players.get(StringName("uid:%s" % uid))
+	if who == null:
+		return {}
+	return {"level": who.level, "best": who.best, "won": who.won}
 
 
 func _game_load() -> DotResult:

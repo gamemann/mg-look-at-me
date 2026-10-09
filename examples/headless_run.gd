@@ -11,7 +11,7 @@ const LmPlayer := preload("res://game/lm_player.gd")
 const LmProgress := preload("res://game/lm_progress.gd")
 
 const SECTIONS := 10
-const CHECKS := 39
+const CHECKS := 41
 
 var _passed := 0
 var _failed := 0
@@ -360,6 +360,21 @@ func _test_the_client_settings() -> void:
 	escape.pressed = true
 	client.call("_unhandled_input", escape)
 	_check(settings != null and settings.is_open(), "and Escape opens them")
+	settings.close()
+
+	# The Tab board, held: the menu's, drawn from the local world offline.
+	var tab := InputEventKey.new()
+	tab.physical_keycode = KEY_TAB
+	tab.pressed = true
+	client.call("_unhandled_input", tab)
+	var board: DotMenuScoreboard = client.get("board")
+	_check(board != null and board.is_open() and board.rows().any(func(r: Dictionary) -> bool:
+			return bool(r.get("you", false)) and int(r.get("level", 0)) >= 1),
+		"Tab holds the board up, with this player and the level they are on",
+		str(board.rows()) if board != null else "no board")
+	tab.pressed = false
+	client.call("_unhandled_input", tab)
+	_check(board != null and not board.is_open(), "and letting go puts it away")
 
 	remove_child(client)
 	client.free()

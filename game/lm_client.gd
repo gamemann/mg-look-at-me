@@ -48,6 +48,12 @@ var _held_sampler: DotFpsSampler = null
 var net: DotNetManager = null
 var bridge: LmNetBridge = null
 var link: Node = null
+
+## The Tab board, the menu's. See [method _wire_board].
+var board: DotMenuScoreboard = null
+
+## When this client started, for an offline board's "time".
+var _started_msec: int = Time.get_ticks_msec()
 var _offline: bool = true
 ## Connected, the keys are sampled here and sent; the local player is predicted from them.
 var _sampler: DotFpsSampler = null
@@ -145,15 +151,65 @@ func _build_settings() -> void:
 	if player != null and player.controller != null:
 		settings.bind_look(player.controller.tunables)
 
-	if settings.stack != null:
-		# Walking is off while the menu is up, as it is while typing a command.
-		settings.stack.menu_state_changed.connect(func(any_open: bool) -> void:
+	if settings.menu != null:
+		# Walking is off while the menu is up, as it is while typing a command; the menu takes
+		# Escape itself now, so the pointer is freed here.
+		settings.menu_state_changed.connect(func(any_open: bool) -> void:
 			for sampler: DotFpsSampler in [_sampler, player.sampler if player != null else null, _held_sampler]:
 				if sampler != null:
 					sampler.suspended = any_open
-			if not any_open and not DotPlatform.is_web() and not _command.visible:
+			if any_open:
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			elif not DotPlatform.is_web() and not _command.visible:
 				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		)
+		# The command line has the keyboard while it is open: its Escape is its own.
+		settings.menu.busy = func() -> bool:
+			return (_command != null and _command.visible) or (chat != null and chat.is_typing())
+		_wire_board()
+
+
+## The Tab board: everybody in the house, the level they are on, the furthest they have got
+## and whether they got out, beside how long they have been on and their ping. Online the
+## levels are the server's (see [LmModule]'s `_game_board_fields`); offline, this world's.
+func _wire_board() -> void:
+	board = settings.menu.scoreboard
+	board.title_text = "Look at Me"
+	board.columns = [
+		{"key": &"name", "title": "Player", "width": 3.0},
+		{"key": &"level", "title": "Level", "kind": DotMenuScoreboard.KIND_NUMBER},
+		{"key": &"best", "title": "Furthest", "kind": DotMenuScoreboard.KIND_NUMBER},
+		{"key": &"won", "title": "", "width": 1.0, "align": HORIZONTAL_ALIGNMENT_RIGHT,
+			"format": func(v: Variant, _row: Dictionary) -> String: return "out" if bool(v) else ""},
+		{"key": &"seconds", "title": "Time", "kind": DotMenuScoreboard.KIND_DURATION},
+		{"key": &"ping", "title": "Ping", "kind": DotMenuScoreboard.KIND_PING},
+	]
+	board.sort_by = &"best"
+	if not _offline and link != null and link.has_signal(&"scoreboard_received"):
+		board.feed_from(link)
+	else:
+		board.source = board_snapshot
+
+
+func _show_board(on: bool) -> void:
+	if board == null:
+		return
+	if on:
+		board.open()
+	else:
+		board.close()
+
+
+## The board from this client's own world. Public so a suite can read it.
+func board_snapshot() -> Dictionary:
+	var rows: Array = []
+	if game != null:
+		for key: StringName in game.players:
+			var who: LmPlayer = game.players[key]
+			rows.append({"id": String(key), "name": who.display_name, "level": who.level, "best": who.best,
+				"won": who.won, "seconds": int((Time.get_ticks_msec() - _started_msec) / 1000) if who == player else -1,
+				"ping": -1, "you": who == player})
+	return {"server": {"name": "Look at Me", "game": "offline"}, "players": rows}
 
 
 func _adopt_player(p: LmPlayer) -> void:
@@ -357,6 +413,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	var key := event as InputEventKey
 
+	# The Tab board, held: shown while the key is down, released when it comes up.
+	if key != null and key.physical_keycode == KEY_TAB and not key.echo and not _command.visible:
+		_show_board(key.pressed)
+		return
+
 	if key == null or not key.pressed or key.echo or _command.visible:
 		return
 
@@ -382,8 +443,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		KEY_ESCAPE:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-			# And the settings: a released pointer with nothing to click was half a key. A
-			# second Escape is dot-ui's stack's, deeper in the tree, which closes the screen.
+			# And the settings: a released pointer with nothing to click was half a key. The
+			# menu sits deeper in the tree and normally hears Escape first; this is for an
+			# Escape it left alone.
 			if settings != null:
 				settings.open()
 
